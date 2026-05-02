@@ -60,6 +60,27 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
+  # SMTP email delivery
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("APP_HOST", "unknownforums.fun"),
+    protocol: "https"
+  }
+  config.action_mailer.default_options = {
+    from: ENV.fetch("MAIL_FROM", "UnknownForums <noreply@unknowncheat.fun>")
+  }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.smtp_settings = {
+    address: ENV.fetch("SMTP_ADDRESS"),
+    port: ENV.fetch("SMTP_PORT", 587).to_i,
+    domain: ENV.fetch("SMTP_DOMAIN", "unknowncheat.fun"),
+    user_name: ENV.fetch("SMTP_USERNAME"),
+    password: ENV.fetch("SMTP_PASSWORD"),
+    authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain").to_sym,
+    enable_starttls_auto: ActiveModel::Type::Boolean.new.cast(ENV.fetch("SMTP_ENABLE_STARTTLS_AUTO", "true"))
+  }
+
   # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts = [
     "unknownforums.fun",
