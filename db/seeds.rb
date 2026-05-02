@@ -68,31 +68,83 @@ help_sf = Subforum.find_or_create_by!(name: "General Help", category: support) d
   s.position = 0
 end
 
-# Sample threads and posts
-if ForumThread.count.zero?
-  thread1 = ForumThread.create!(
-    title: "Welcome to the Forums!",
+# Announcement threads (pinned + locked = read-only notice boards)
+welcome = ForumThread.find_or_create_by!(title: "Welcome to UnknownForums!", subforum: announce) do |t|
+  t.user   = admin
+  t.pinned = true
+  t.locked = true
+end
+if welcome.posts.empty?
+  Post.create!(
     user: admin,
-    subforum: announce,
-    pinned: true
-  )
-  Post.create!(body: "Welcome everyone! This is the official forum. Please read the rules before posting.", user: admin, thread: thread1)
-  Post.create!(body: "Thanks for setting this up! Looking forward to being part of the community.", user: user, thread: thread1)
+    thread: welcome,
+    body: <<~BODY
+      Welcome to UnknownForums!
 
-  thread2 = ForumThread.create!(
-    title: "Introduce yourself here",
-    user: mod,
-    subforum: lounge
-  )
-  Post.create!(body: "Hey everyone, use this thread to introduce yourself to the community!", user: mod, thread: thread2)
+      We're glad you're here. This is a community-driven discussion forum — a place to share ideas, ask questions, and connect with others.
 
-  thread3 = ForumThread.create!(
-    title: "Best practices for Ruby on Rails performance",
-    user: user,
-    subforum: ruby_sf
+      Before you dive in, please take a moment to read the following:
+
+      • Forum Rules — https://unknownforums.fun/rules
+      • Terms of Service — https://unknownforums.fun/terms
+      • Privacy Policy — https://unknownforums.fun/privacy
+
+      A few quick tips to get started:
+      — Register an account to post and interact with the community
+      — Introduce yourself in the General Lounge
+      — Use the search bar to see if your question has already been answered
+      — Be respectful and have fun
+
+      If you have any issues, feel free to contact a moderator or admin.
+
+      — The UnknownForums Staff
+    BODY
   )
-  Post.create!(body: "I wanted to start a discussion about Rails performance tips. What are your go-to optimization techniques?\n\nI usually start with:\n- Adding proper database indexes\n- Using counter caches\n- Avoiding N+1 queries with includes()", user: user, thread: thread3)
-  Post.create!(body: "Great topic! I always make sure to use bullet gem during development to catch N+1 queries early.", user: mod, thread: thread3)
+end
+
+rules_thread = ForumThread.find_or_create_by!(title: "Forum Rules — Please Read Before Posting", subforum: announce) do |t|
+  t.user   = admin
+  t.pinned = true
+  t.locked = true
+end
+if rules_thread.posts.empty?
+  Post.create!(
+    user: admin,
+    thread: rules_thread,
+    body: <<~BODY
+      These rules apply to all members of UnknownForums. Ignorance of the rules is not an excuse. Violations may result in warnings, post removal, or bans.
+
+      GENERAL RULES
+      1. Be respectful. No harassment, personal attacks, hate speech, or bullying.
+      2. No spam. No advertisements or self-promotion without staff permission.
+      3. No NSFW content. Keep it clean.
+      4. No illegal content. Do not post anything illegal.
+      5. No ban evasion. One account per person.
+
+      POSTING RULES
+      1. Stay on topic. Post in the correct subforum.
+      2. Use descriptive thread titles.
+      3. No double posting. Edit your post instead.
+      4. No necroposting threads older than 30 days without something meaningful to add.
+
+      FILE UPLOAD RULES
+      1. No malware. Immediate permanent ban.
+      2. No pirated content.
+      3. Describe what you're uploading.
+
+      ENFORCEMENT
+      Verbal warning → post removal → temporary ban → permanent ban.
+      Severe violations (malware, threats, doxxing) = immediate permanent ban.
+
+      Full rules: https://unknownforums.fun/rules
+    BODY
+  )
+end
+
+# General threads
+if ForumThread.where(subforum: lounge).count.zero?
+  intro = ForumThread.create!(title: "Introduce yourself!", user: admin, subforum: lounge, pinned: true)
+  Post.create!(user: admin, thread: intro, body: "New here? Drop a message and introduce yourself to the community! Tell us a bit about who you are and what brought you here.")
 end
 
 puts "Seeding complete!"

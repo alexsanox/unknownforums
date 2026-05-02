@@ -31,6 +31,9 @@ gem "rack-attack"
 # AWS S3-compatible storage (Cloudflare R2)
 gem "aws-sdk-s3", require: false
 
+# Image processing for Active Storage variants (avatars etc.)
+gem "image_processing", "~> 1.2"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
