@@ -1,30 +1,9 @@
 puts "Seeding database..."
 
-# Admin user
-admin = User.find_or_create_by!(username: "admin") do |u|
-  u.email = "admin@forums.local"
-  u.password = "admin1234"
-  u.password_confirmation = "admin1234"
-  u.role = :admin
-  u.reputation = 500
-end
-puts "Admin user: #{admin.username}"
-
-# Moderator user
-mod = User.find_or_create_by!(username: "moderator") do |u|
-  u.email = "mod@forums.local"
-  u.password = "mod12345"
-  u.password_confirmation = "mod12345"
-  u.role = :moderator
-  u.reputation = 100
-end
-
-# Sample user
-user = User.find_or_create_by!(username: "member1") do |u|
-  u.password = "member123"
-  u.password_confirmation = "member123"
-  u.role = :user
-end
+# Use existing terminator account as the author, fall back to any admin
+admin = User.find_by(username: "terminator") || User.where(role: :admin).first
+raise "No admin user found! Create your account first, then run seeds." unless admin
+puts "Using '#{admin.username}' as seed author"
 
 # Categories and subforums
 general = Category.find_or_create_by!(name: "General") do |c|
@@ -148,6 +127,4 @@ if ForumThread.where(subforum: lounge).count.zero?
 end
 
 puts "Seeding complete!"
-puts "  Admin: admin / admin1234"
-puts "  Mod:   moderator / mod12345"
-puts "  User:  member1 / member123"
+puts "  Author: #{admin.username}"
