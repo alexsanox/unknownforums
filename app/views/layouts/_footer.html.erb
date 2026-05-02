@@ -1,3 +1,10 @@
-<div style="max-width:1100px; margin:16px auto 0; padding:8px; border-top:1px solid #333; color:#666; font-size:10px; text-align:center;">
-  Forums &mdash; All times are UTC &mdash; Powered by Rails <%= Rails::VERSION::STRING %>
+<div style="max-width:1100px; margin:16px auto 0; padding:8px 8px 16px; border-top:1px solid #333; color:#666; font-size:10px; text-align:center;">
+  <div style="margin-bottom:4px;">
+    <a href="<%= rules_path %>" style="color:#777;">Forum Rules</a>
+    &nbsp;&middot;&nbsp;
+    <a href="<%= terms_path %>" style="color:#777;">Terms of Service</a>
+    &nbsp;&middot;&nbsp;
+    <a href="<%= privacy_path %>" style="color:#777;">Privacy Policy</a>
+  </div>
+  <%= forum_name %> &mdash; All times are UTC
 </div>

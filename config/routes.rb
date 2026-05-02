@@ -67,6 +67,10 @@ Rails.application.routes.draw do
     get "forums", to: "forums#index", as: :forums
   end
 
+  get "terms",   to: "pages#terms",   as: :terms
+  get "privacy", to: "pages#privacy", as: :privacy
+  get "rules",   to: "pages#rules",  as: :rules
+
   get "sitemap.xml", to: "sitemaps#show", as: :sitemap, defaults: { format: :xml }
   get "up", to: "rails/health#show", as: :rails_health_check
 end

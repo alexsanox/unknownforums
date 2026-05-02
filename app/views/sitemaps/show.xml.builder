@@ -14,6 +14,23 @@ xml.urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
     xml.priority "0.6"
   end
 
+  # Static pages
+  xml.url do
+    xml.loc rules_url
+    xml.changefreq "monthly"
+    xml.priority "0.3"
+  end
+  xml.url do
+    xml.loc terms_url
+    xml.changefreq "monthly"
+    xml.priority "0.3"
+  end
+  xml.url do
+    xml.loc privacy_url
+    xml.changefreq "monthly"
+    xml.priority "0.3"
+  end
+
   # Subforums
   @subforums.each do |subforum|
     xml.url do
