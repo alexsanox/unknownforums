@@ -2,8 +2,8 @@
 
 class Rack::Attack
   ### --- Cache store ---
-  # Use the app cache so throttles are shared across Puma workers.
-  Rack::Attack.cache.store = Rails.cache
+  # Keep rate-limit state isolated from the app database/cache tables.
+  Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
 
   ### --- Safelist ---
   # Allow all requests from localhost in development
