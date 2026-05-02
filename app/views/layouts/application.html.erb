@@ -16,6 +16,11 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="<%= content_for(:og_title).presence || content_for(:title).presence || forum_name %>">
     <meta name="twitter:description" content="<%= content_for(:og_description).presence || content_for(:meta_description).presence || forum_description %>">
+    <link rel="icon" href="/favis/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favis/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favis/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/favis/apple-touch-icon.png">
+    <link rel="manifest" href="/favis/site.webmanifest">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
