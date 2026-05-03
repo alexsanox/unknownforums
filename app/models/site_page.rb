@@ -10,7 +10,7 @@ class SitePage < ApplicationRecord
         <p style="margin-bottom:14px;">By using UnknownForums, you agree to follow these rules. Violations may result in warnings, post removal, or bans at moderator discretion.</p>
 
         <div style="background:#1e1e1e; border:1px solid #333; padding:12px 16px; margin-bottom:16px;">
-          <h3 style="color:#f0c060; font-size:13px; margin:0 0 8px;">&#9888; General Rules</h3>
+          <h3 style="color:#f0c060; font-size:13px; margin:0 0 8px;">General Rules</h3>
           <ol style="margin:0 0 0 20px; color:#b0b0b0;">
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">Be respectful.</strong> Treat all members with respect. No personal attacks, harassment, bullying, or hate speech.</li>
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">No spam.</strong> Do not post spam, advertisements, or self-promotional content without permission.</li>
@@ -22,7 +22,7 @@ class SitePage < ApplicationRecord
         </div>
 
         <div style="background:#1e1e1e; border:1px solid #333; padding:12px 16px; margin-bottom:16px;">
-          <h3 style="color:#7aabde; font-size:13px; margin:0 0 8px;">&#128172; Posting Rules</h3>
+          <h3 style="color:#7aabde; font-size:13px; margin:0 0 8px;">Posting Rules</h3>
           <ol style="margin:0 0 0 20px; color:#b0b0b0;">
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">Stay on topic.</strong> Keep posts relevant to the subforum and thread topic.</li>
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">Use descriptive titles.</strong> Thread titles should clearly describe the content or question.</li>
@@ -33,7 +33,7 @@ class SitePage < ApplicationRecord
         </div>
 
         <div style="background:#1e1e1e; border:1px solid #333; padding:12px 16px; margin-bottom:16px;">
-          <h3 style="color:#60c060; font-size:13px; margin:0 0 8px;">&#128190; File Upload Rules</h3>
+          <h3 style="color:#60c060; font-size:13px; margin:0 0 8px;">File Upload Rules</h3>
           <ol style="margin:0 0 0 20px; color:#b0b0b0;">
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">No malware.</strong> Uploading malicious files will result in an immediate permanent ban.</li>
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">No pirated content.</strong> Do not upload copyrighted software, media, or materials you do not own or have rights to share.</li>
@@ -43,7 +43,7 @@ class SitePage < ApplicationRecord
         </div>
 
         <div style="background:#1e1e1e; border:1px solid #333; padding:12px 16px; margin-bottom:16px;">
-          <h3 style="color:#c08080; font-size:13px; margin:0 0 8px;">&#9878; Reputation Rules</h3>
+          <h3 style="color:#c08080; font-size:13px; margin:0 0 8px;">Reputation Rules</h3>
           <ol style="margin:0 0 0 20px; color:#b0b0b0;">
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">No rep manipulation.</strong> Do not ask for, trade, or exchange reputation points.</li>
             <li style="margin-bottom:6px;"><strong style="color:#cfcfcf;">Honest feedback.</strong> Give reputation based on the quality and helpfulness of posts.</li>
@@ -51,7 +51,7 @@ class SitePage < ApplicationRecord
         </div>
 
         <div style="background:#2a1a1a; border:1px solid #4a2a2a; padding:12px 16px;">
-          <h3 style="color:#f08080; font-size:13px; margin:0 0 8px;">&#128683; Enforcement</h3>
+          <h3 style="color:#f08080; font-size:13px; margin:0 0 8px;">Enforcement</h3>
           <p style="margin:0; color:#b0b0b0;">Violations are handled at staff discretion. Consequences include: <strong style="color:#cfcfcf;">verbal warning → post removal → temporary ban → permanent ban.</strong> Severe violations (malware, doxxing, threats) may result in an immediate permanent ban without warning.</p>
         </div>
       HTML
