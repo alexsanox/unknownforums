@@ -14,17 +14,24 @@ class SessionsController < ApplicationController
     end
 
     if user&.authenticate(params[:password])
-      unless user.email.present?
-        flash.now[:alert] = "This account needs an email address before it can use email 2FA."
-        return render :new, status: :unprocessable_entity
-      end
+      if user.email_two_factor_enabled?
+        unless user.email.present?
+          flash.now[:alert] = "This account needs an email address before it can use email 2FA."
+          return render :new, status: :unprocessable_entity
+        end
 
-      reset_session
-      send_email_otp!(user)
-      session[:pending_email_otp_user_id] = user.id
-      session[:pending_email_otp_purpose] = "login"
-      session[:return_to_after_email_otp] = return_to
-      redirect_to email_otp_path, notice: "We sent a login code to #{user.email}."
+        reset_session
+        send_email_otp!(user)
+        session[:pending_email_otp_user_id] = user.id
+        session[:pending_email_otp_purpose] = "login"
+        session[:return_to_after_email_otp] = return_to
+        redirect_to email_otp_path, notice: "We sent a login code to #{user.email}."
+      else
+        user.register_successful_login!(ip: request.remote_ip)
+        reset_session
+        session[:user_id] = user.id
+        redirect_to return_to, notice: "Welcome back, #{user.username}!"
+      end
     else
       user&.register_failed_login!
       remaining = User::MAX_LOGIN_ATTEMPTS - (user&.failed_login_attempts || 0)

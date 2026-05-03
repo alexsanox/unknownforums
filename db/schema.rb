@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_02_215000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_02_220500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -169,6 +169,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_02_215000) do
     t.datetime "email_otp_expires_at"
     t.string "email_otp_purpose"
     t.datetime "email_otp_sent_at"
+    t.boolean "email_two_factor_enabled", default: false, null: false
     t.datetime "email_verified_at"
     t.integer "failed_login_attempts", default: 0, null: false
     t.text "flag_reason"
@@ -187,6 +188,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_02_215000) do
     t.index ["banned"], name: "index_users_on_banned"
     t.index ["email"], name: "index_users_on_email", unique: true, where: "(email IS NOT NULL)"
     t.index ["email_otp_expires_at"], name: "index_users_on_email_otp_expires_at"
+    t.index ["email_two_factor_enabled"], name: "index_users_on_email_two_factor_enabled"
     t.index ["email_verified_at"], name: "index_users_on_email_verified_at"
     t.index ["flagged"], name: "index_users_on_flagged"
     t.index ["previous_usernames"], name: "index_users_on_previous_usernames", using: :gin
