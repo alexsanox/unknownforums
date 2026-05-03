@@ -83,11 +83,11 @@
           <div class="uc-quote-header">
             Originally posted by <strong><%= post.quote_post.user.username %></strong>:
           </div>
-          <%= truncate(post.quote_post.body, length: 300) %>
+          <%= truncate(strip_tags(markdown_post_body(post.quote_post.body)), length: 300) %>
         </div>
       <% end %>
 
-      <%= simple_format(h(post.body).gsub(/@([A-Za-z0-9_\-]{3,30})/) { |m| "<strong style='color:#7aabde;'>#{m}</strong>" }.html_safe) %>
+      <%= markdown_post_body(post.body) %>
 
       <% if post.attachments.any? %>
         <div style="border-top:1px solid #333; margin-top:8px; padding-top:6px;">

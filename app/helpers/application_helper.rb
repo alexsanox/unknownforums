@@ -1,3 +1,5 @@
+require "kramdown"
+
 module ApplicationHelper
   def avatar_image_tag(user, size:, **options)
     return unless user.avatar.attached?
@@ -88,6 +90,14 @@ module ApplicationHelper
     dots = ""
     power.times { dots += '<span style="display:inline-block; width:6px; height:6px; background:#60c060; margin:0 1px; border-radius:1px;"></span>' }
     dots.html_safe
+  end
+
+  def markdown_post_body(body)
+    html = Kramdown::Document.new(body.to_s, hard_wrap: true).to_html
+    html = html.gsub(/@([A-Za-z0-9_\-]{3,30})/) { "<strong>#{$&}</strong>" }
+    sanitize html,
+      tags: %w[p br strong em b i u a ul ol li blockquote code pre hr h1 h2 h3 h4 h5 h6 table thead tbody tr th td],
+      attributes: %w[href title]
   end
 
   def link_to_prev_page(collection, text, **opts)

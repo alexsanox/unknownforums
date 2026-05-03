@@ -16,6 +16,7 @@ class Post < ApplicationRecord
   after_create  :increment_user_posts_count
   after_destroy :decrement_subforum_posts_count
   after_destroy :decrement_user_posts_count
+  after_update  :decrement_visible_counters_after_soft_delete, if: :saved_change_to_deleted?
 
   def quoted_body
     return nil unless quote_post
@@ -43,5 +44,14 @@ class Post < ApplicationRecord
 
   def decrement_user_posts_count
     user.decrement!(:posts_count) unless deleted?
+  end
+
+  def decrement_visible_counters_after_soft_delete
+    return unless deleted?
+    return unless saved_change_to_deleted == [false, true]
+
+    thread.decrement!(:posts_count)
+    thread.subforum.decrement!(:posts_count)
+    user.decrement!(:posts_count)
   end
 end
