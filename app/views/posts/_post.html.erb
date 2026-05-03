@@ -55,6 +55,9 @@
         <%= post_number ? "##{post_number}" : "New reply" %>
         &mdash;
         <a href="#post-<%= post.id %>" style="color:#666;"><%= post.created_at.strftime("%m/%d/%Y %I:%M %p") %></a>
+        <% if post.edited? %>
+          &mdash; <span title="Edited <%= post.edited_at.strftime("%m/%d/%Y %I:%M %p") %>">edited</span>
+        <% end %>
       </span>
       <span class="post-actions">
         <% if viewer && !thread.locked? %>

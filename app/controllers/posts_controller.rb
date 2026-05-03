@@ -22,7 +22,9 @@ class PostsController < ApplicationController
 
   def update
     authorize_post!
-    if @post.update(post_params)
+    @post.assign_attributes(post_params)
+    @post.edited_at = Time.current if @post.body_changed?
+    if @post.save
       AttachmentCreator.attach(attachable: @post, user: current_user, files: params[:files])
       redirect_to forum_thread_path(@thread, anchor: "post-#{@post.id}"), notice: "Post updated."
     else

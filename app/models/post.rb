@@ -19,7 +19,12 @@ class Post < ApplicationRecord
 
   def quoted_body
     return nil unless quote_post
+
     quote_post.body.truncate(500)
+  end
+
+  def edited?
+    edited_at.present?
   end
 
   private

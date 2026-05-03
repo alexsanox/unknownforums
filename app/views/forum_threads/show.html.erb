@@ -33,6 +33,9 @@
     <% if @thread.pinned? %>
       <span class="badge badge-pin">PINNED</span>
     <% end %>
+    <% if @thread.edited? %>
+      <span class="badge" title="Edited <%= @thread.edited_at.strftime("%m/%d/%Y %I:%M %p") %>">EDITED</span>
+    <% end %>
   </span>
   <div class="action-group">
     <!-- Thread tools for mods -->

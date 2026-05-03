@@ -49,7 +49,9 @@ class ForumThreadsController < ApplicationController
 
   def update
     require_owner_or_moderator(@thread.user)
-    if @thread.update(thread_update_params)
+    @thread.assign_attributes(thread_update_params)
+    @thread.edited_at = Time.current if @thread.title_changed?
+    if @thread.save
       redirect_to forum_thread_path(@thread), notice: "Thread updated."
     else
       render :edit, status: :unprocessable_entity

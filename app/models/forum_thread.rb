@@ -16,6 +16,10 @@ class ForumThread < ApplicationRecord
     increment!(:views_count)
   end
 
+  def edited?
+    edited_at.present?
+  end
+
   def first_post
     posts.order(:created_at).first
   end
