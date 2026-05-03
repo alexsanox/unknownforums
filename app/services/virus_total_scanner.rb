@@ -30,6 +30,9 @@ class VirusTotalScanner
     return poll_and_update(url_id) if url_id
 
     skip!("VirusTotal did not accept file or URL submission")
+  rescue VirusTotalQuota::RateLimited => e
+    Rails.logger.info("VirusTotal quota delayed attachment=#{@attachment.id}: retry_in=#{e.wait_seconds}")
+    retry_later!(e.wait_seconds)
   rescue => e
     Rails.logger.error("VirusTotalScanner error attachment=#{@attachment.id}: #{e.message}")
     return retry_later! if @attachment.vt_scan_id.present?
@@ -50,6 +53,8 @@ class VirusTotalScanner
 
     res = post_json("#{BASE}/urls", { url: download_url })
     res.dig("data", "id")
+  rescue VirusTotalQuota::RateLimited
+    raise
   rescue
     nil
   end
@@ -76,7 +81,9 @@ class VirusTotalScanner
       "\r\n--#{boundary}--\r\n"
     ].join
 
-    response = http.request(req)
+    response = vt_request { http.request(req) }
+    raise VirusTotalQuota::RateLimited, 60 if response.code.to_i == 429
+
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error("VT file submit failed attachment=#{@attachment.id}: HTTP #{response.code} #{response.body}")
       return nil
@@ -84,6 +91,8 @@ class VirusTotalScanner
 
     body = JSON.parse(response.body)
     body.dig("data", "id")
+  rescue VirusTotalQuota::RateLimited
+    raise
   rescue => e
     Rails.logger.error("VT file submit failed: #{e.message}")
     nil
@@ -93,6 +102,8 @@ class VirusTotalScanner
     return "#{BASE}/files" if @attachment.byte_size.to_i <= 32.megabytes
 
     get_json("#{BASE}/files/upload_url").fetch("data")
+  rescue VirusTotalQuota::RateLimited
+    raise
   rescue => e
     Rails.logger.error("VT large-file upload URL failed: #{e.message}")
     "#{BASE}/files"
@@ -101,25 +112,19 @@ class VirusTotalScanner
   def poll_and_update(analysis_id)
     @attachment.update_columns(vt_scan_id: analysis_id)
 
-    5.times do |i|
-      sleep(i * 5 + 5)
-      res  = get_json("#{BASE}/analyses/#{analysis_id}")
-      stat = res.dig("data", "attributes", "status")
-      next unless stat == "completed"
+    res  = get_json("#{BASE}/analyses/#{analysis_id}")
+    stat = res.dig("data", "attributes", "status")
+    return retry_later! unless stat == "completed"
 
-      stats  = res.dig("data", "attributes", "stats") || {}
-      result = classify(stats)
-      @attachment.update_columns(
-        vt_status:    result,
-        approved:     result == "clean" ? true : @attachment.approved?,
-        vt_report:    stats,
-        vt_scanned_at: Time.current
-      )
-      return :completed
-    end
-
-    @attachment.update_columns(vt_status: "scanning")
-    :pending
+    stats  = res.dig("data", "attributes", "stats") || {}
+    result = classify(stats)
+    @attachment.update_columns(
+      vt_status:    result,
+      approved:     result == "clean" ? true : @attachment.approved?,
+      vt_report:    stats,
+      vt_scanned_at: Time.current
+    )
+    :completed
   end
 
   def classify(stats)
@@ -143,7 +148,9 @@ class VirusTotalScanner
     req["accept"]      = "application/json"
     req["content-type"] = "application/x-www-form-urlencoded"
     req.body = URI.encode_www_form(payload)
-    response = http.request(req)
+    response = vt_request { http.request(req) }
+    raise VirusTotalQuota::RateLimited, 60 if response.code.to_i == 429
+
     raise Error, "HTTP #{response.code} #{response.body}" unless response.is_a?(Net::HTTPSuccess)
 
     JSON.parse(response.body)
@@ -156,7 +163,9 @@ class VirusTotalScanner
     req  = Net::HTTP::Get.new(uri)
     req["x-apikey"] = API_KEY
     req["accept"]   = "application/json"
-    response = http.request(req)
+    response = vt_request { http.request(req) }
+    raise VirusTotalQuota::RateLimited, 60 if response.code.to_i == 429
+
     raise Error, "HTTP #{response.code} #{response.body}" unless response.is_a?(Net::HTTPSuccess)
 
     JSON.parse(response.body)
@@ -168,8 +177,13 @@ class VirusTotalScanner
     :skipped
   end
 
-  def retry_later!
+  def vt_request
+    VirusTotalQuota.consume!
+    yield
+  end
+
+  def retry_later!(wait_seconds = 2.minutes)
     @attachment.update_columns(vt_status: "scanning")
-    :pending
+    { status: :pending, wait: wait_seconds.to_i }
   end
 end

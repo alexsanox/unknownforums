@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_094000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_095000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -445,6 +445,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_094000) do
     t.index ["previous_usernames"], name: "index_users_on_previous_usernames", using: :gin
     t.index ["role"], name: "index_users_on_role"
     t.index ["username"], name: "index_users_on_username", unique: true
+  end
+
+  create_table "virus_total_quotas", force: :cascade do |t|
+    t.integer "count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.string "period", null: false
+    t.datetime "period_start", null: false
+    t.datetime "updated_at", null: false
+    t.index ["period", "period_start"], name: "index_virus_total_quotas_on_period_and_period_start", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
