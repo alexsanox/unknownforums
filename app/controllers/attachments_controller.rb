@@ -46,11 +46,12 @@ class AttachmentsController < ApplicationController
 
     content_type = file.content_type.presence || "application/octet-stream"
     next_version  = root.versions.maximum(:version).to_i + 2
+    stored_filename = AttachmentCreator.stored_filename_for(root.attachable, file.original_filename)
 
     new_att = Attachment.new(
       attachable:           root.attachable,
       user:                 current_user,
-      filename:             file.original_filename,
+      filename:             stored_filename,
       content_type:         content_type,
       byte_size:            file.size,
       is_video:             content_type.start_with?("video/"),
@@ -58,7 +59,7 @@ class AttachmentsController < ApplicationController
       version:              next_version,
       approved:             false
     )
-    new_att.file.attach(file)
+    AttachmentCreator.attach_file(new_att, file, root.attachable, current_user, content_type)
 
     if new_att.save
       VirusTotalScanJob.perform_later(new_att.id) if new_att.vt_scannable?
