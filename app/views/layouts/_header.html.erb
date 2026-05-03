@@ -40,11 +40,11 @@
           <a href="<%= private_messages_path %>">Messages
             <%= render "private_messages/message_badge", user: current_user %>
           </a>
-          <a href="<%= notifications_path %>" style="position:relative;">
-            &#128276;
-            <% unread_notif = current_user.unread_notifications_count %>
-            <% if unread_notif > 0 %>
-              <span style="position:absolute; top:-4px; right:-8px; background:#7aabde; color:#000; border-radius:50%; width:14px; height:14px; font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:bold;"><%= unread_notif > 9 ? '9+' : unread_notif %></span>
+          <% _unread_notif = current_user.unread_notifications_count %>
+          <a href="<%= notifications_path %>" style="position:relative; white-space:nowrap;">
+            🔔 Watched
+            <% if _unread_notif > 0 %>
+              <span style="background:#7aabde; color:#000; border-radius:10px; padding:0 5px; font-size:9px; font-weight:bold; margin-left:2px;"><%= _unread_notif > 99 ? '99+' : _unread_notif %></span>
             <% end %>
           </a>
           <a href="<%= user_path(current_user) %>">Profile</a>

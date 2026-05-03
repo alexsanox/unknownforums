@@ -14,7 +14,17 @@ class ThreadSubscription < ApplicationRecord
     update_column(:last_read_at, Time.current)
   end
 
-  def unread?(thread)
-    last_read_at.nil? || thread.posts.where("created_at > ?", last_read_at).exists?
+  def unread?(thread = forum_thread)
+    last_read_at.nil? || (thread.posts.maximum(:created_at)&.> last_read_at)
+  end
+
+  def unread_count(thread = forum_thread)
+    return 0 unless last_read_at.nil? || unread?(thread)
+    last_read_at.nil? ? thread.posts_count : thread.posts.where("created_at > ?", last_read_at).count
+  end
+
+  def self.unread_map_for(user, thread_ids)
+    where(user: user, forum_thread_id: thread_ids)
+      .index_by(&:forum_thread_id)
   end
 end

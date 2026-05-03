@@ -96,8 +96,6 @@
       <% end %>
     </div>
 
-    <%= render "posts/reactions", post: post %>
-
     <% if post.user.signature.present? %>
       <div class="uc-post-sig"><%= simple_format(h(post.user.signature)) %></div>
     <% end %>
