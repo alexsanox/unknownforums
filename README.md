@@ -115,6 +115,9 @@ services:
       PORT: "4251"
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       DATABASE_URL: ${DATABASE_URL}
+      APP_HOST: ${APP_HOST}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      MAIL_FROM: ${MAIL_FROM}
       RAILS_SERVE_STATIC_FILES: "true"
       FORUM_NAME: "UnknownForums"
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
@@ -135,6 +138,11 @@ RAILS_MASTER_KEY=your_master_key_here
 
 # Neon connection string
 DATABASE_URL=postgresql://user:pass@ep-xxxxx.us-east-2.aws.neon.tech/unknownforums?sslmode=require
+
+# Site host and Resend API email delivery
+APP_HOST=unknownforums.fun
+RESEND_API_KEY=re_your_resend_api_key_here
+MAIL_FROM="UnknownForums <noreply@unknownforums.fun>"
 
 # Cloudflare R2
 R2_ACCESS_KEY_ID=your_r2_key
@@ -203,6 +211,9 @@ docker compose exec web bin/rails console
 |---|---|
 | `RAILS_MASTER_KEY` | From `config/master.key` |
 | `DATABASE_URL` | Neon PostgreSQL connection string |
+| `APP_HOST` | Production host used for URLs and Action Cable (default: unknownforums.fun) |
+| `RESEND_API_KEY` | Resend API key used to send OTP verification and login emails |
+| `MAIL_FROM` | Verified Resend sender address, e.g. `UnknownForums <noreply@unknownforums.fun>` |
 | `R2_ACCESS_KEY_ID` | Cloudflare R2 access key |
 | `R2_SECRET_ACCESS_KEY` | Cloudflare R2 secret key |
 | `R2_BUCKET` | R2 bucket name |
@@ -212,3 +223,5 @@ docker compose exec web bin/rails console
 | `WEB_CONCURRENCY` | Puma workers (default: 2) |
 | `RAILS_MAX_THREADS` | Puma threads (default: 3) |
 | `BLOCKED_IPS` | Comma-separated IPs to block |
+
+Email delivery uses the Resend API directly. SMTP variables such as `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, and `SMTP_PASSWORD` are not used for OTP emails.
