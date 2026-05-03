@@ -8,6 +8,7 @@ class Attachment < ApplicationRecord
 
   BLOCKED_EXTENSIONS = %w[exe bat cmd sh ps1 vbs js dll msi dmg].freeze
   MAX_SIZE = 100.megabytes
+  VIRUSTOTAL_MAX_SIZE = 100.megabytes
 
   belongs_to :attachable, polymorphic: true
   belongs_to :user
@@ -27,10 +28,16 @@ class Attachment < ApplicationRecord
   scope :vt_pending,       -> { where(vt_status: "pending") }
   scope :vt_malicious,     -> { where(vt_status: "malicious") }
   scope :top_downloads,    -> { order(download_count: :desc) }
+  scope :public_downloads, -> { where(attachable_type: "Post") }
 
   def vt_scannable?
-    %w[application/zip application/x-zip-compressed application/pdf
-       application/octet-stream text/plain].include?(content_type)
+    byte_size.to_i <= VIRUSTOTAL_MAX_SIZE &&
+      %w[application/zip application/x-zip-compressed application/pdf
+         application/octet-stream text/plain].include?(content_type)
+  end
+
+  def dm_file?
+    attachable_type == "PrivateMessage"
   end
 
   def vt_clean?()       vt_status == "clean"      end

@@ -1,6 +1,7 @@
 class AttachmentsController < ApplicationController
   before_action :require_login
   before_action :set_attachment
+  before_action :authorize_attachment_access!, only: %i[show download]
 
   def show
   end
@@ -79,5 +80,15 @@ class AttachmentsController < ApplicationController
 
   def set_attachment
     @attachment = Attachment.find(params[:id])
+  end
+
+  def authorize_attachment_access!
+    return unless @attachment.dm_file?
+    return if moderator_or_admin?
+
+    message = @attachment.attachable
+    return if message.sender == current_user || message.recipient == current_user
+
+    redirect_to private_messages_path, alert: "You cannot access that file."
   end
 end
