@@ -16,7 +16,7 @@ class RegistrationsController < ApplicationController
     else
       render :new, status: :unprocessable_entity
     end
-  rescue EmailOtpSender::DeliveryDisabled, Net::SMTPError, IOError, Timeout::Error, SocketError => error
+  rescue EmailOtpSender::DeliveryDisabled, EmailOtpSender::DeliveryFailed, Net::SMTPError, IOError, Timeout::Error, SocketError => error
     Rails.logger.warn("Registration email OTP delivery failed: #{error.class}: #{error.message}")
     @user.destroy if @user&.persisted? && !@user.email_verified?
     @user ||= User.new(registration_params)

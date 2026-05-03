@@ -28,6 +28,9 @@ gem "kaminari"
 # Rate limiting & throttling
 gem "rack-attack"
 
+# Transactional emails through Resend API
+gem "resend"
+
 # AWS S3-compatible storage (Cloudflare R2)
 gem "aws-sdk-s3", require: false
 

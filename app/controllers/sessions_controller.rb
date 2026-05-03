@@ -41,7 +41,7 @@ class SessionsController < ApplicationController
       flash.now[:alert] = alert_msg
       render :new, status: :unprocessable_entity
     end
-  rescue EmailOtpSender::DeliveryDisabled, Net::SMTPError, IOError, Timeout::Error, SocketError => error
+  rescue EmailOtpSender::DeliveryDisabled, EmailOtpSender::DeliveryFailed, Net::SMTPError, IOError, Timeout::Error, SocketError => error
     Rails.logger.warn("Login email OTP delivery failed: #{error.class}: #{error.message}")
     flash.now[:alert] = "We could not send your login code. Please try again."
     render :new, status: :unprocessable_entity

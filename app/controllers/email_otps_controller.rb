@@ -21,7 +21,7 @@ class EmailOtpsController < ApplicationController
     else
       redirect_to email_otp_path, alert: "Please wait #{@user.email_otp_resend_wait} seconds before requesting another code."
     end
-  rescue EmailOtpSender::DeliveryDisabled, Net::SMTPError, IOError, Timeout::Error, SocketError => error
+  rescue EmailOtpSender::DeliveryDisabled, EmailOtpSender::DeliveryFailed, Net::SMTPError, IOError, Timeout::Error, SocketError => error
     Rails.logger.warn("Email OTP resend failed: #{error.class}: #{error.message}")
     redirect_to email_otp_path, alert: "We could not send a new code. Please try again."
   end
