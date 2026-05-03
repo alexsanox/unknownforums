@@ -1,0 +1,52 @@
+<% content_for :title, "Milestones" %>
+<% noindex_page %>
+
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header">Your Milestones</div>
+  <div class="panel-body" style="font-size:12px; color:#aaa; line-height:1.6;">
+    Track what you have achieved and what challenges are still available.
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin-bottom:12px;">
+  <div class="admin-stat-card"><div class="admin-stat-value"><%= @achieved.size %></div><div class="admin-stat-label">Achieved</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value"><%= @challenges.size %></div><div class="admin-stat-label">Challenges Left</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value"><%= @milestones.size %></div><div class="admin-stat-label">Total Milestones</div></div>
+</div>
+
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header" style="color:#80c080;">Achieved</div>
+  <div class="panel-body" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px;">
+    <% if @achieved.empty? %>
+      <div style="grid-column:1/-1; color:#666; text-align:center; padding:12px;">No milestones achieved yet. Start posting, uploading, and participating.</div>
+    <% end %>
+    <% @achieved.each do |milestone| %>
+      <div style="background:#1a2a1a; border:1px solid #2f6b2f; padding:10px;">
+        <div style="font-size:13px; font-weight:bold; color:#9bd89b;">✓ <%= milestone[:title] %></div>
+        <div style="font-size:11px; color:#aaa; margin-top:4px;"><%= milestone[:description] %></div>
+        <div style="font-size:10px; color:#80c080; margin-top:6px;"><%= milestone[:current] %>/<%= milestone[:target] %> <%= milestone[:unit] %></div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header" style="color:#f0c060;">Challenges</div>
+  <div class="panel-body" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px;">
+    <% @challenges.each do |milestone| %>
+      <div style="background:#242424; border:1px solid #444; padding:10px;">
+        <div style="font-size:13px; font-weight:bold; color:#e0e0e0;"><%= milestone[:title] %></div>
+        <div style="font-size:11px; color:#aaa; margin-top:4px;"><%= milestone[:description] %></div>
+        <div style="margin-top:8px;">
+          <div style="display:flex; justify-content:space-between; font-size:10px; color:#888; margin-bottom:3px;">
+            <span><%= milestone[:current] %>/<%= milestone[:target] %> <%= milestone[:unit] %></span>
+            <span><%= milestone[:percent] %>%</span>
+          </div>
+          <div style="height:7px; background:#1a1a1a; border:1px solid #333; overflow:hidden;">
+            <div style="height:100%; width:<%= milestone[:percent] %>%; background:#7aabde;"></div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -15,7 +15,9 @@
       <a href="<%= root_path %>">Home</a>
       <a href="<%= root_path %>">Forum</a>
       <a href="<%= downloads_path %>">Downloads</a>
+      <a href="<%= leaderboard_path %>">Leaderboard</a>
       <% if logged_in? %>
+        <a href="<%= milestones_path %>">Milestones</a>
         <a href="<%= private_messages_path %>">Messages</a>
         <a href="<%= user_path(current_user) %>">Profile</a>
       <% end %>
