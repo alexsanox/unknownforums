@@ -12,7 +12,7 @@ class AttachmentsController < ApplicationController
     end
 
     @attachment.increment_download!
-    redirect_to rails_blob_url(@attachment.file), allow_other_host: true
+    redirect_to rails_blob_url(@attachment.file, disposition: "attachment", filename: @attachment.filename), allow_other_host: true
   end
 
   def approve
