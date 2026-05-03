@@ -1,0 +1,64 @@
+<% content_for :title, @query.present? ? "Search: #{@query}" : "Search" %>
+
+<div class="panel" style="margin-bottom:10px;">
+  <div class="panel-body">
+    <%= form_with url: search_path, method: :get do |f| %>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <%= f.text_field :q, value: @query, placeholder: "Search threads and posts…",
+              style: "flex:1; font-size:13px;", autofocus: true %>
+        <%= f.submit "Search", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @query.present? && @query.length < 2 %>
+  <div style="color:#888; font-size:12px; padding:10px;">Please enter at least 2 characters.</div>
+<% end %>
+
+<% if @threads %>
+
+  <!-- Thread results -->
+  <div class="panel" style="margin-bottom:10px;">
+    <div class="panel-header">
+      Threads &mdash; <span style="color:#888; font-weight:normal;"><%= @threads.size %> result<%= @threads.size == 1 ? "" : "s" %></span>
+    </div>
+    <% if @threads.any? %>
+      <% @threads.each do |t| %>
+        <div style="padding:8px 12px; border-top:1px solid #333;">
+          <a href="<%= forum_thread_path(t) %>" style="font-size:13px; font-weight:bold;">
+            <%= highlight(t.title, @query) %>
+          </a>
+          <span style="font-size:10px; color:#555; margin-left:8px;">in <%= t.subforum&.name %></span>
+        </div>
+      <% end %>
+    <% else %>
+      <div style="padding:12px; color:#666; font-size:12px;">No threads matched.</div>
+    <% end %>
+  </div>
+
+  <!-- Post results -->
+  <div class="panel">
+    <div class="panel-header">
+      Posts &mdash; <span style="color:#888; font-weight:normal;"><%= @posts.size %> result<%= @posts.size == 1 ? "" : "s" %></span>
+    </div>
+    <% if @posts.any? %>
+      <% @posts.each do |p| %>
+        <div style="padding:8px 12px; border-top:1px solid #333;">
+          <div style="font-size:11px; color:#888; margin-bottom:3px;">
+            <a href="<%= user_path(p.user) %>"><%= p.user.username %></a>
+            in
+            <a href="<%= forum_thread_path(p.thread, anchor: "post-#{p.id}") %>"><%= p.thread.title.truncate(60) %></a>
+            &mdash; <%= p.created_at.strftime("%m/%d/%Y") %>
+          </div>
+          <div style="font-size:12px; color:#cfcfcf;">
+            <%= highlight(truncate(p.body, length: 200), @query) %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div style="padding:12px; color:#666; font-size:12px;">No posts matched.</div>
+    <% end %>
+  </div>
+
+<% end %>

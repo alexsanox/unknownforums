@@ -49,6 +49,15 @@
       <% end %>
       <%= button_to "Delete", forum_thread_path(@thread), method: :delete, class: "btn btn-danger btn-sm", data: { turbo_confirm: "Delete this thread?" } %>
     <% end %>
+    <% if logged_in? %>
+      <% if @subscription %>
+        <%= button_to "🔔 Watching", forum_thread_thread_subscription_path(@thread, @subscription),
+              method: :delete, class: "btn btn-sm", title: "Click to unwatch" %>
+      <% else %>
+        <%= button_to "🔕 Watch", forum_thread_thread_subscriptions_path(@thread),
+              method: :post, class: "btn btn-sm" %>
+      <% end %>
+    <% end %>
   </div>
 </div>
 

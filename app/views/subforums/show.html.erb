@@ -57,7 +57,14 @@
             <% if thread.locked? %>
               <span style="background:#3a3a3a; border:1px solid #555; color:#888; font-size:9px; padding:1px 4px; margin-right:4px;">LOCKED</span>
             <% end %>
-            <a href="<%= forum_thread_path(thread) %>" style="font-size:12px; font-weight:bold; color:#a8c8f0;"><%= thread.title %></a>
+            <% sub = @subscription_map&.dig(thread.id) %>
+            <% has_unread = sub && sub.unread?(thread) %>
+            <a href="<%= forum_thread_path(thread) %>" style="font-size:12px; font-weight:bold; color:#a8c8f0;">
+              <% if has_unread %>
+                <span style="display:inline-block; width:7px; height:7px; background:#7aabde; border-radius:50%; margin-right:3px; vertical-align:middle;" title="New posts"></span>
+              <% end %>
+              <%= thread.title %>
+            </a>
             <div style="font-size:10px; color:#666; margin-top:2px;">
               by <a href="<%= user_path(thread.user) %>"><%= thread.user.username %></a>
               &mdash; <%= thread.created_at.strftime("%m/%d/%Y") %>

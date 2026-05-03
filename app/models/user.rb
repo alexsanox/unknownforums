@@ -14,6 +14,10 @@ class User < ApplicationRecord
   has_many :issued_warnings, class_name: "UserWarning", foreign_key: :warned_by_id, dependent: :nullify
   has_many :staff_notes, dependent: :destroy
   has_many :authored_staff_notes, class_name: "StaffNote", foreign_key: :author_id, dependent: :nullify
+  has_many :thread_subscriptions, dependent: :destroy
+  has_many :subscribed_threads, through: :thread_subscriptions, source: :forum_thread
+  has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
+  has_many :post_reactions, dependent: :destroy
 
   has_one_attached :avatar
 
@@ -51,6 +55,16 @@ class User < ApplicationRecord
 
   def bust_unread_cache
     Rails.cache.delete("user_unread_#{id}")
+  end
+
+  def unread_notifications_count
+    Rails.cache.fetch("user_notif_#{id}", expires_in: 30.seconds) do
+      notifications.unread.count
+    end
+  end
+
+  def bust_notification_cache
+    Rails.cache.delete("user_notif_#{id}")
   end
 
   def post_count

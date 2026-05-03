@@ -44,6 +44,13 @@ Rails.application.routes.draw do
 
   resources :reputations, only: %i[create destroy]
   resources :reports, only: %i[new create]
+  resources :post_reactions, only: %i[create]
+  resources :notifications, only: %i[index]
+  get "search", to: "search#index", as: :search
+
+  resources :forum_threads, path: "threads", only: [] do
+    resources :thread_subscriptions, only: %i[create destroy], path: "watch"
+  end
 
   resources :private_messages, path: "messages" do
     collection do

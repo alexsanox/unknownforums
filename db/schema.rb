@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_090100) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_091300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -95,15 +95,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_090100) do
     t.boolean "locked", default: false, null: false
     t.boolean "pinned", default: false, null: false
     t.integer "posts_count", default: 0, null: false
+    t.tsvector "search_vector"
     t.bigint "subforum_id", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.integer "views_count", default: 0, null: false
     t.index ["locked"], name: "index_forum_threads_on_locked"
+    t.index ["search_vector"], name: "idx_threads_search", using: :gin
     t.index ["subforum_id", "pinned", "created_at"], name: "index_forum_threads_on_subforum_id_and_pinned_and_created_at"
     t.index ["subforum_id"], name: "index_forum_threads_on_subforum_id"
     t.index ["user_id"], name: "index_forum_threads_on_user_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "actor_id", null: false
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.text "message"
+    t.bigint "notifiable_id"
+    t.string "notifiable_type"
+    t.boolean "read", default: false, null: false
+    t.bigint "recipient_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
+    t.index ["recipient_id", "read"], name: "index_notifications_on_recipient_id_and_read"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
+  end
+
+  create_table "post_reactions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "emoji", null: false
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["post_id", "user_id", "emoji"], name: "index_post_reactions_on_post_id_and_user_id_and_emoji", unique: true
+    t.index ["post_id"], name: "index_post_reactions_on_post_id"
+    t.index ["user_id"], name: "index_post_reactions_on_user_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -113,6 +142,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_090100) do
     t.bigint "forum_thread_id", null: false
     t.string "ip_address"
     t.bigint "quote_post_id"
+    t.tsvector "search_vector"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["deleted"], name: "index_posts_on_deleted"
@@ -120,6 +150,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_090100) do
     t.index ["forum_thread_id", "deleted", "created_at"], name: "idx_posts_thread_visible_created"
     t.index ["ip_address"], name: "index_posts_on_ip_address"
     t.index ["quote_post_id"], name: "index_posts_on_quote_post_id"
+    t.index ["search_vector"], name: "idx_posts_search", using: :gin
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -205,6 +236,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_090100) do
     t.index ["position"], name: "index_subforums_on_position"
   end
 
+  create_table "thread_subscriptions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "forum_thread_id", null: false
+    t.datetime "last_read_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["forum_thread_id"], name: "index_thread_subscriptions_on_forum_thread_id"
+    t.index ["user_id", "forum_thread_id"], name: "index_thread_subscriptions_on_user_id_and_forum_thread_id", unique: true
+    t.index ["user_id"], name: "index_thread_subscriptions_on_user_id"
+  end
+
   create_table "user_warnings", force: :cascade do |t|
     t.boolean "acknowledged", default: false, null: false
     t.datetime "created_at", null: false
@@ -266,6 +308,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_090100) do
   add_foreign_key "attachments", "users"
   add_foreign_key "forum_threads", "subforums"
   add_foreign_key "forum_threads", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
+  add_foreign_key "notifications", "users", column: "recipient_id"
+  add_foreign_key "post_reactions", "posts"
+  add_foreign_key "post_reactions", "users"
   add_foreign_key "posts", "forum_threads"
   add_foreign_key "posts", "posts", column: "quote_post_id"
   add_foreign_key "posts", "users"
@@ -280,6 +326,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_090100) do
   add_foreign_key "staff_notes", "users"
   add_foreign_key "staff_notes", "users", column: "author_id"
   add_foreign_key "subforums", "categories"
+  add_foreign_key "thread_subscriptions", "forum_threads"
+  add_foreign_key "thread_subscriptions", "users"
   add_foreign_key "user_warnings", "users"
   add_foreign_key "user_warnings", "users", column: "warned_by_id"
 end

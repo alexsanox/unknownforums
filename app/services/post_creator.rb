@@ -17,6 +17,8 @@ class PostCreator
 
     @post = @thread.posts.build(@params.merge(user: @user, ip_address: @ip))
     if @post.save
+      ThreadSubscription.subscribe!(user: @user, thread: @thread)
+      NotificationDispatcher.dispatch_for_post(@post)
       @post
     else
       @errors = @post.errors.full_messages

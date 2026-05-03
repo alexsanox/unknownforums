@@ -3,6 +3,8 @@ class ForumThread < ApplicationRecord
   belongs_to :subforum, counter_cache: :threads_count
   has_many :posts, foreign_key: :forum_thread_id, dependent: :destroy
   has_many :attachments, as: :attachable, dependent: :destroy
+  has_many :subscriptions, class_name: "ThreadSubscription", dependent: :destroy
+  has_many :subscribers, through: :subscriptions, source: :user
 
   validates :title, presence: true, length: { minimum: 3, maximum: 200 }
 

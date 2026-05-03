@@ -10,8 +10,8 @@
   </div>
 
   <!-- Navigation tabs -->
-  <div class="header-inner">
-    <div class="nav-tabs">
+  <div class="header-inner" style="display:flex; align-items:flex-end; justify-content:space-between; gap:8px;">
+    <div class="nav-tabs" style="flex:1;">
       <a href="<%= root_path %>">Home</a>
       <a href="<%= root_path %>">Forum</a>
       <a href="<%= downloads_path %>">Downloads</a>
@@ -20,6 +20,12 @@
         <a href="<%= user_path(current_user) %>">Profile</a>
       <% end %>
     </div>
+    <%= form_with url: search_path, method: :get, style: "display:flex; align-items:center; gap:4px; padding-bottom:4px;" do |f| %>
+      <%= f.text_field :q, placeholder: "Search…",
+            style: "width:160px; font-size:11px; padding:3px 6px; background:#1b1b1b; border:1px solid #444; color:#cfcfcf;",
+            autocomplete: "off" %>
+      <button type="submit" style="background:#2a2a2a; border:1px solid #444; color:#888; padding:3px 8px; font-size:11px; cursor:pointer;">&#128269;</button>
+    <% end %>
   </div>
 
   <!-- User toolbar -->
@@ -33,6 +39,13 @@
           <span>Logged in as <a href="<%= user_path(current_user) %>" style="color:#7aabde;"><strong><%= current_user.username %></strong></a></span>
           <a href="<%= private_messages_path %>">Messages
             <%= render "private_messages/message_badge", user: current_user %>
+          </a>
+          <a href="<%= notifications_path %>" style="position:relative;">
+            &#128276;
+            <% unread_notif = current_user.unread_notifications_count %>
+            <% if unread_notif > 0 %>
+              <span style="position:absolute; top:-4px; right:-8px; background:#7aabde; color:#000; border-radius:50%; width:14px; height:14px; font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:bold;"><%= unread_notif > 9 ? '9+' : unread_notif %></span>
+            <% end %>
           </a>
           <a href="<%= user_path(current_user) %>">Profile</a>
           <% if current_user.can_moderate? %>

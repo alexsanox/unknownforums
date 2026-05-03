@@ -1,0 +1,29 @@
+<% content_for :title, "Notifications" %>
+
+<div class="panel">
+  <div class="panel-header">Notifications</div>
+  <% if @notifications.any? %>
+    <% @notifications.each do |n| %>
+      <div style="padding:9px 12px; border-top:1px solid #333; display:flex; gap:10px; align-items:flex-start;
+                  background:<%= n.read? ? 'transparent' : '#1e2830' %>;">
+        <span style="font-size:16px; flex-shrink:0;">
+          <%= n.kind == "mention" ? "💬" : n.kind == "subscription" ? "🔔" : "⭐" %>
+        </span>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:12px; color:#cfcfcf;"><%= n.message %></div>
+          <div style="font-size:10px; color:#666; margin-top:2px;">
+            <%= n.created_at.strftime("%m/%d/%Y %I:%M %p") %>
+            <% if n.notifiable_type == "Post" && n.notifiable %>
+              &mdash; <a href="<%= forum_thread_path(n.notifiable.thread, anchor: "post-#{n.notifiable_id}") %>">View post</a>
+            <% end %>
+          </div>
+        </div>
+        <% unless n.read? %>
+          <span style="width:7px; height:7px; background:#7aabde; border-radius:50%; flex-shrink:0; margin-top:4px;"></span>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <div style="padding:20px; text-align:center; color:#666; font-size:12px;">No notifications yet.</div>
+  <% end %>
+</div>

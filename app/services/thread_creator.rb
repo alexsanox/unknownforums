@@ -28,6 +28,7 @@ class ThreadCreator
       end
 
       @post.save!
+      ThreadSubscription.subscribe!(user: @user, thread: @thread)
     end
 
     @thread&.persisted? ? @thread : nil

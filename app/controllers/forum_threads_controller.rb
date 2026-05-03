@@ -6,11 +6,14 @@ class ForumThreadsController < ApplicationController
   def show
     @thread.increment_views!
     @posts = @thread.posts.visible
-                    .includes(:user, :quote_post, attachments: [:file_attachment, :versions],
+                    .includes(:user, :quote_post, :reactions,
+                              attachments: [:file_attachment, :versions],
                               user: { avatar_attachment: :blob })
                     .order(:created_at)
                     .page(params[:page])
     @post = Post.new
+    @subscription = logged_in? && ThreadSubscription.find_by(user: current_user, forum_thread: @thread)
+    @subscription&.mark_read!
   end
 
   def new
