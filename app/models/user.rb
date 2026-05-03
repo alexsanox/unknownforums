@@ -17,6 +17,7 @@ class User < ApplicationRecord
   AVATAR_MAX_SIZE = 10.megabytes
   MAX_LOGIN_ATTEMPTS = 5
   LOCKOUT_DURATION = 15.minutes
+  ONLINE_WINDOW = 10.minutes
   EMAIL_OTP_EXPIRATION = 10.minutes
   EMAIL_OTP_RESEND_COOLDOWN = 60.seconds
   EMAIL_OTP_MAX_ATTEMPTS = 5
@@ -99,6 +100,10 @@ class User < ApplicationRecord
   def lockout_remaining
     return 0 unless locked?
     ((locked_until - Time.current) / 60).ceil
+  end
+
+  def online?
+    last_seen_at.present? && last_seen_at > ONLINE_WINDOW.ago
   end
 
   def email_verified?

@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActionController::RoutingError, with: :not_found
 
   before_action :set_current_user
+  before_action :track_current_user_activity
   before_action :check_banned
   before_action :set_admin_summary, if: :show_admin_summary?
 
@@ -23,6 +24,13 @@ class ApplicationController < ActionController::Base
 
   def logged_in?
     current_user.present?
+  end
+
+  def track_current_user_activity
+    return unless current_user&.has_attribute?(:last_seen_at)
+    return if current_user.last_seen_at.present? && current_user.last_seen_at > 2.minutes.ago
+
+    current_user.update_column(:last_seen_at, Time.current)
   end
 
   def admin?

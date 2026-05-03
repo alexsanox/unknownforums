@@ -35,6 +35,10 @@
         <div style="font-size:12px; margin-bottom:6px;">
           Rep: <%= rep_label(@user.reputation) %>
         </div>
+        <div style="font-size:11px; color:#888; margin-bottom:6px;">
+          <span class="<%= @user.online? ? 'uc-user-online' : 'uc-user-offline' %>"></span>
+          <%= @user.online? ? "Online" : "Offline" %>
+        </div>
         <table style="font-size:10px; color:#666; width:100%; text-align:left;">
           <tr><td>Posts:</td><td><strong><%= @user.post_count %></strong></td></tr>
           <tr><td>Threads:</td><td><strong><%= @user.forum_threads.count %></strong></td></tr>

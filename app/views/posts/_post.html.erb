@@ -101,7 +101,10 @@
     <% end %>
 
     <div class="uc-post-footer">
-      <span style="font-size:10px; color:#555;"><%= post.user.username %> is offline</span>
+      <span style="font-size:10px; color:#555;">
+        <span class="<%= post.user.online? ? 'uc-user-online' : 'uc-user-offline' %>"></span>
+        <%= post.user.username %> is <%= post.user.online? ? "online" : "offline" %>
+      </span>
       <% if viewer && viewer != post.user %>
         <div class="action-group">
           <%= button_to "+Rep", reputations_path(post_id: post.id, value: 1), method: :post,
