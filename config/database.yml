@@ -99,12 +99,9 @@ production:
   cache:
     <<: *primary_production
     url: <%= ENV["CACHE_DATABASE_URL"].presence || ENV["DATABASE_URL"] %>
-    migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
     url: <%= ENV["QUEUE_DATABASE_URL"].presence || ENV["DATABASE_URL"] %>
-    migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
     url: <%= ENV["CABLE_DATABASE_URL"].presence || ENV["DATABASE_URL"] %>
-    migrations_paths: db/cable_migrate
