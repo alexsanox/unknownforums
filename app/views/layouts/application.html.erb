@@ -183,7 +183,7 @@
       <% if flash[:alert] %>
         <div class="flash-alert"><%= flash[:alert] %></div>
       <% end %>
-      <% if @admin_summary.present? %>
+      <% if @admin_summary.present? && controller_path.start_with?("admin/") %>
         <%= render "admin/shared/dashboard_summary" %>
       <% end %>
 

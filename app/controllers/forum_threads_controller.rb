@@ -1,6 +1,6 @@
 class ForumThreadsController < ApplicationController
   before_action :set_thread, only: %i[show edit update destroy lock unlock pin unpin move]
-  before_action :require_login, except: %i[show]
+  before_action :require_login
   before_action :require_moderator, only: %i[lock unlock pin unpin move destroy]
 
   def show

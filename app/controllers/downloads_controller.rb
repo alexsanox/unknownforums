@@ -1,4 +1,6 @@
 class DownloadsController < ApplicationController
+  before_action :require_login
+
   def index
     @attachments = Attachment.approved.joins(:user).includes(:attachable, file_attachment: :blob)
                              .order(created_at: :desc)
