@@ -41,7 +41,7 @@
             <%= render "private_messages/message_badge", user: current_user %>
           </a>
           <% _unread_notif = current_user.unread_notifications_count %>
-          <a href="<%= notifications_path %>" style="position:relative; white-space:nowrap;">
+          <a href="<%= notifications_path %>" style="position:relative; white-space:nowrap; text-decoration:none;">
             🔔 Watched
             <% if _unread_notif > 0 %>
               <span style="background:#7aabde; color:#000; border-radius:10px; padding:0 5px; font-size:9px; font-weight:bold; margin-left:2px;"><%= _unread_notif > 99 ? '99+' : _unread_notif %></span>
