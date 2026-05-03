@@ -44,13 +44,20 @@
         <% end %>
       </div>
       <div style="font-size:10px; color:#666;">
+        v<%= attachment.version %> &mdash;
         <%= attachment.human_size %> &mdash; <%= attachment.download_count %> downloads
         <% unless attachment.approved? %>
           <span style="color:#e0a030;">&mdash; this file may not be secure</span>
         <% end %>
+        <% if attachment.root_attachment.versions.any? %>
+          &mdash; <a href="<%= new_version_attachment_path(attachment.root_attachment) %>" style="color:#888; font-size:10px;"><%= attachment.root_attachment.versions.count + 1 %> versions</a>
+        <% end %>
       </div>
     </div>
     <a href="<%= download_attachment_path(attachment) %>" class="btn btn-sm">Download</a>
+    <% if logged_in? && (current_user == attachment.root_attachment.user || moderator_or_admin?) %>
+      <a href="<%= new_version_attachment_path(attachment.root_attachment) %>" class="btn btn-sm" title="Upload new version">&#8593; v</a>
+    <% end %>
   <% end %>
 
   <div style="display:flex; gap:3px; flex-shrink:0;">

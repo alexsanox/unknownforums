@@ -34,9 +34,11 @@ Rails.application.routes.draw do
 
   resources :attachments, only: %i[show destroy] do
     member do
-      get :download
+      get   :download
       patch :approve
       patch :unapprove
+      get   :new_version
+      post  :upload_version
     end
   end
 

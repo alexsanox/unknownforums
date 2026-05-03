@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_080400) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_082000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -53,8 +53,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_080400) do
     t.integer "duration_seconds"
     t.string "filename", null: false
     t.boolean "is_video", default: false, null: false
+    t.bigint "parent_attachment_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.integer "version", default: 1, null: false
     t.jsonb "vt_report", default: {}
     t.string "vt_scan_id"
     t.datetime "vt_scanned_at"
@@ -62,6 +64,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_080400) do
     t.index ["approved"], name: "index_attachments_on_approved"
     t.index ["attachable_type", "attachable_id"], name: "index_attachments_on_attachable"
     t.index ["attachable_type", "attachable_id"], name: "index_attachments_on_attachable_type_and_attachable_id"
+    t.index ["parent_attachment_id"], name: "index_attachments_on_parent_attachment_id"
     t.index ["user_id"], name: "index_attachments_on_user_id"
     t.index ["vt_status"], name: "index_attachments_on_vt_status"
   end

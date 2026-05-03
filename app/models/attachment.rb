@@ -11,6 +11,8 @@ class Attachment < ApplicationRecord
 
   belongs_to :attachable, polymorphic: true
   belongs_to :user
+  belongs_to :parent_attachment, class_name: "Attachment", optional: true
+  has_many   :versions, class_name: "Attachment", foreign_key: :parent_attachment_id, dependent: :destroy
   has_one_attached :file
 
   validates :filename, presence: true
@@ -34,6 +36,18 @@ class Attachment < ApplicationRecord
   def vt_clean?()       vt_status == "clean"      end
   def vt_malicious?()   vt_status == "malicious"  end
   def vt_pending?()     vt_status == "pending"     end
+
+  def root_attachment
+    parent_attachment || self
+  end
+
+  def all_versions
+    root_attachment.versions.order(:version)
+  end
+
+  def latest_version?
+    versions.empty?
+  end
 
   def video?
     content_type.start_with?("video/")

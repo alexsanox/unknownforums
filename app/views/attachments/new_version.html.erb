@@ -1,0 +1,47 @@
+<% content_for :title, "Upload New Version" %>
+
+<div style="font-size:11px; color:#888; margin-bottom:6px;">
+  Upload a new version of <strong style="color:#cfcfcf;"><%= @attachment.root_attachment.filename %></strong>
+</div>
+
+<div class="panel" style="max-width:520px;">
+  <div class="panel-header">Upload New Version</div>
+  <div class="panel-body">
+
+    <!-- Version history -->
+    <% root = @attachment.root_attachment %>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:10px; color:#888; text-transform:uppercase; margin-bottom:4px;">Version History</div>
+      <div style="background:#1e1e1e; border:1px solid #333; padding:6px 8px; font-size:11px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+          <span style="color:#cfcfcf;">v1 — <%= root.filename %></span>
+          <span style="color:#888;"><%= root.created_at.strftime("%m/%d/%Y") %></span>
+        </div>
+        <% root.all_versions.each do |v| %>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; padding-left:8px; border-left:2px solid #444;">
+            <span style="color:#cfcfcf;">v<%= v.version %> — <%= v.filename %>
+              <span style="font-size:10px; color:#888;">by <%= v.user.username %></span>
+            </span>
+            <span style="color:#888;"><%= v.created_at.strftime("%m/%d/%Y") %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%= form_with url: upload_version_attachment_path(@attachment), method: :post, multipart: true do |f| %>
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:11px; color:#888; margin-bottom:3px;">Select file (replaces current version):</label>
+        <input type="file" name="file" style="font-size:12px;">
+      </div>
+      <div style="font-size:10px; color:#666; margin-bottom:8px;">
+        The new file will be marked as unapproved and scanned by VirusTotal (if configured).
+        Max size: 100MB.
+      </div>
+      <div style="display:flex; gap:8px;">
+        <%= f.submit "Upload New Version", class: "btn btn-primary" %>
+        <%= link_to "Cancel", :back, class: "btn" %>
+      </div>
+    <% end %>
+
+  </div>
+</div>
