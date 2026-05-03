@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActionController::RoutingError, with: :not_found
 
   before_action :set_current_user
+  before_action :prevent_html_caching
   before_action :track_current_user_activity
   before_action :check_banned
   before_action :set_admin_summary, if: :show_admin_summary?
@@ -24,6 +25,14 @@ class ApplicationController < ActionController::Base
 
   def logged_in?
     current_user.present?
+  end
+
+  def prevent_html_caching
+    return unless request.format.html?
+
+    response.headers["Cache-Control"] = "no-store, no-cache, max-age=0, must-revalidate, private"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
   end
 
   def track_current_user_activity
