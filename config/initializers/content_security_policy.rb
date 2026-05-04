@@ -10,13 +10,13 @@ Rails.application.configure do
     policy.font_src    :self, :data
     policy.img_src     :self, :data, :https
     policy.object_src  :none
-    policy.script_src  :self, :unsafe_inline
+    policy.script_src  :self, :unsafe_inline, "https://static.cloudflareinsights.com"
     policy.style_src   :self, :unsafe_inline
     policy.frame_src   :none
     policy.base_uri    :self
     policy.form_action :self
     policy.frame_ancestors :none
-    policy.connect_src :self
+    policy.connect_src :self, "https://cloudflareinsights.com"
     policy.media_src   :self
   end
 
