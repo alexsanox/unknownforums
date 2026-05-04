@@ -49,7 +49,8 @@ class EmailOtpsController < ApplicationController
     reset_session
     @user.register_successful_login!(ip: request.remote_ip)
     session[:user_id] = @user.id
-    redirect_to destination, notice: "Welcome, #{@user.username}!"
+    response.set_header("Turbo-Visit-Control", "reload")
+    redirect_to destination, notice: "Welcome, #{@user.username}!", status: :see_other
   end
 
   def otp_error_message

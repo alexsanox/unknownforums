@@ -32,6 +32,7 @@ class SessionsController < ApplicationController
         reset_session
         session[:user_id] = user.id
         AuditLog.record(actor: user, action: "login_success", details: "Direct login", ip: request.remote_ip)
+        response.set_header("Turbo-Visit-Control", "reload")
         redirect_to return_to, notice: "Welcome back, #{user.username}!", status: :see_other
       end
     else
@@ -53,6 +54,7 @@ class SessionsController < ApplicationController
   def destroy
     AuditLog.record(actor: current_user, action: "logout", ip: request.remote_ip) if current_user
     reset_session
+    response.set_header("Turbo-Visit-Control", "reload")
     redirect_to root_path, notice: "You have been logged out.", status: :see_other
   end
 
