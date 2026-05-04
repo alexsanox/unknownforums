@@ -5,14 +5,23 @@ class Attachment < ApplicationRecord
     application/zip application/x-zip-compressed
     application/x-bittorrent
     video/mp4 video/webm video/ogg
+    application/x-msdownload application/x-msdos-program
+    application/x-dosexec application/octet-stream
+    application/x-sh application/x-powershell
+    application/javascript text/javascript
+    application/x-apple-diskimage
   ].freeze
 
-  BLOCKED_EXTENSIONS = %w[exe bat cmd sh ps1 vbs js dll msi dmg].freeze
   MAX_SIZE = 100.megabytes
 
   VT_SCAN_TYPES = %w[
     application/zip application/x-zip-compressed
     application/x-bittorrent application/pdf
+    application/x-msdownload application/x-msdos-program
+    application/x-dosexec application/octet-stream
+    application/x-sh application/x-powershell
+    application/javascript text/javascript
+    application/x-apple-diskimage
   ].freeze
 
   belongs_to :attachable, polymorphic: true
@@ -22,9 +31,8 @@ class Attachment < ApplicationRecord
   has_one_attached :file
 
   validates :filename, presence: true
-  validates :content_type, inclusion: { in: ALLOWED_TYPES, message: "is not an allowed type. Allowed: images, videos, ZIP, PDF, plain text, torrent" }
+  validates :content_type, inclusion: { in: ALLOWED_TYPES, message: "is not an allowed type. Allowed: images, videos, ZIP, PDF, executables, scripts, plain text, torrent" }
   validates :byte_size, numericality: { less_than_or_equal_to: MAX_SIZE, message: "is too large — maximum upload size is 100 MB" }
-  validate :extension_not_blocked
 
   VT_STATUSES = %w[pending scanning clean suspicious malicious skipped].freeze
 
@@ -114,9 +122,4 @@ class Attachment < ApplicationRecord
   end
 
   private
-
-  def extension_not_blocked
-    ext = File.extname(filename.to_s).delete(".").downcase
-    errors.add(:filename, "has a blocked extension (.#{ext} files are not permitted)") if BLOCKED_EXTENSIONS.include?(ext)
-  end
 end
