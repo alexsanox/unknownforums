@@ -65,7 +65,112 @@ document.addEventListener("turbo:load", () => {
   initMentionAutocomplete()
   initFileUpload()
   initVideoJS()
+  initCategoryToggle()
+  initBulkPosts()
+  initQuotePost()
+  initAdminThreadBulk()
 })
+
+/* ── Category collapse ── */
+function initCategoryToggle() {
+  const meta = document.getElementById("category-ids")
+  if (meta) {
+    let ids = []
+    try { ids = JSON.parse(meta.textContent) } catch(e) {}
+    ids.forEach(id => {
+      if (localStorage.getItem("cat-collapsed-" + id) === "1") {
+        const body    = document.getElementById("cat-body-" + id)
+        const chevron = document.getElementById("cat-chevron-" + id)
+        if (body)    body.style.display = "none"
+        if (chevron) chevron.style.transform = "rotate(-90deg)"
+      }
+    })
+  }
+  document.querySelectorAll("[data-category-id]").forEach(btn => {
+    if (btn._catInit) return
+    btn._catInit = true
+    btn.addEventListener("click", () => {
+      const id      = btn.dataset.categoryId
+      const body    = document.getElementById("cat-body-" + id)
+      const chevron = document.getElementById("cat-chevron-" + id)
+      const key     = "cat-collapsed-" + id
+      if (body.style.display === "none") {
+        body.style.display = ""
+        chevron.style.transform = ""
+        localStorage.removeItem(key)
+      } else {
+        body.style.display = "none"
+        chevron.style.transform = "rotate(-90deg)"
+        localStorage.setItem(key, "1")
+      }
+    })
+  })
+}
+
+/* ── Bulk post delete (delegated, once) ── */
+let _bulkPostsInit = false
+function initBulkPosts() {
+  if (_bulkPostsInit) return
+  _bulkPostsInit = true
+  document.addEventListener("change", (e) => {
+    if (!e.target.classList.contains("bulk-check")) return
+    const bar   = document.getElementById("bulk-delete-bar")
+    const count = document.getElementById("bulk-count")
+    if (!bar || !count) return
+    const checked = document.querySelectorAll(".bulk-check:checked").length
+    count.textContent = checked + " post" + (checked === 1 ? "" : "s") + " selected"
+    bar.style.display = checked > 0 ? "flex" : "none"
+  })
+}
+
+/* ── Quote post (delegated, once) ── */
+let _quotePostInit = false
+function initQuotePost() {
+  if (_quotePostInit) return
+  _quotePostInit = true
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-quote-post-id]")
+    if (!link) return
+    e.preventDefault()
+    const postId  = link.dataset.quotePostId
+    const field   = document.getElementById("quote_post_id_field")
+    const preview = document.getElementById("quote-preview")
+    const form    = document.getElementById("reply-form")
+    if (!field) return
+    field.value = postId
+    if (preview) { preview.style.display = "block"; preview.textContent = "Quoting post #" + postId }
+    if (form)    form.scrollIntoView({ behavior: "smooth" })
+  })
+}
+
+/* ── Admin thread bulk actions ── */
+function initAdminThreadBulk() {
+  const bulkForm = document.getElementById("bulk-form")
+  if (!bulkForm || bulkForm._init) return
+  bulkForm._init = true
+
+  document.getElementById("bulk-select-all")?.addEventListener("click",   () => document.querySelectorAll(".bulk-cb").forEach(cb => cb.checked = true))
+  document.getElementById("bulk-deselect-all")?.addEventListener("click", () => document.querySelectorAll(".bulk-cb").forEach(cb => cb.checked = false))
+
+  bulkForm.querySelector("select[name='bulk_action']")?.addEventListener("change", function() {
+    const mt = document.getElementById("move-target")
+    if (mt) mt.style.display = this.value === "move" ? "inline-block" : "none"
+  })
+
+  bulkForm.addEventListener("submit", async (event) => {
+    const action = bulkForm.querySelector("select[name='bulk_action']")?.value
+    const count  = document.querySelectorAll(".bulk-cb:checked").length
+    if (!action) { event.preventDefault(); await window.siteAlert("Please select an action."); return }
+    if (!count)  { event.preventDefault(); await window.siteAlert("Please select at least one thread."); return }
+    if (action === "delete" && !bulkForm.dataset.confirmed) {
+      event.preventDefault()
+      if (await window.siteConfirm("Delete " + count + " thread(s)? This cannot be undone.")) {
+        bulkForm.dataset.confirmed = "1"
+        bulkForm.requestSubmit()
+      }
+    }
+  })
+}
 
 /* ── Video.js player init ── */
 function initVideoJS() {
