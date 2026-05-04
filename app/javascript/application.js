@@ -63,7 +63,68 @@ document.addEventListener("turbo:load", () => {
     initLightbox()
   }
   initMentionAutocomplete()
+  initFileUpload()
 })
+
+/* ── File upload drop zone ── */
+function initFileUpload() {
+  const zone  = document.getElementById("file-drop-zone")
+  const input = document.getElementById("file-upload-input")
+  if (!zone || !input || zone._init) return
+  zone._init = true
+
+  zone.addEventListener("click", () => input.click())
+
+  let dragCounter = 0
+  zone.addEventListener("dragenter", (e) => {
+    e.preventDefault(); e.stopPropagation()
+    if (++dragCounter === 1) { zone.style.borderColor = "#3d9faf"; zone.style.background = "rgba(61,159,175,0.06)" }
+  })
+  zone.addEventListener("dragleave", (e) => {
+    e.preventDefault(); e.stopPropagation()
+    if (--dragCounter <= 0) { dragCounter = 0; zone.style.borderColor = "#444"; zone.style.background = "" }
+  })
+  zone.addEventListener("dragover", (e) => { e.preventDefault(); e.stopPropagation() })
+  zone.addEventListener("drop", (e) => {
+    e.preventDefault(); e.stopPropagation()
+    dragCounter = 0; zone.style.borderColor = "#444"; zone.style.background = ""
+    const dropped = Array.from(e.dataTransfer.files)
+    if (!dropped.length) return
+    const dt = new DataTransfer()
+    Array.from(input.files).forEach(f => dt.items.add(f))
+    dropped.forEach(f => dt.items.add(f))
+    input.files = dt.files
+    renderFilePreview(input.files)
+  })
+  input.addEventListener("change", function() { renderFilePreview(this.files) })
+}
+
+function renderFilePreview(files) {
+  const label   = document.getElementById("file-list-label")
+  const preview = document.getElementById("file-preview-list")
+  if (!label || !preview) return
+  preview.innerHTML = ""
+  if (!files.length) { label.textContent = ""; return }
+  label.textContent = files.length + " file" + (files.length !== 1 ? "s" : "") + " selected"
+  Array.from(files).forEach(file => {
+    const isImg = file.type.startsWith("image/")
+    const isVid = file.type.startsWith("video/")
+    const tag   = isImg ? "IMG" : isVid ? "VID" : "FILE"
+    const size  = file.size >= 1048576 ? (file.size/1048576).toFixed(1)+" MB" : (file.size/1024).toFixed(0)+" KB"
+    const row   = document.createElement("div")
+    row.style.cssText = "font-size:10px;color:#888;padding:2px 0;display:flex;align-items:center;gap:6px;"
+    row.innerHTML = `<span style="border:1px solid #555;padding:1px 4px;font-size:9px;color:#aaa;">${tag}</span>`
+      + `<span style="color:#a8c8f0;">${file.name}</span>`
+      + `<span style="color:#555;">(${size})</span>`
+    if (isImg) {
+      const img = document.createElement("img")
+      img.style.cssText = "height:36px;width:auto;border:1px solid #333;margin-left:2px;"
+      img.src = URL.createObjectURL(file)
+      row.appendChild(img)
+    }
+    preview.appendChild(row)
+  })
+}
 
 /* ── Image lightbox ── */
 function initLightbox() {
