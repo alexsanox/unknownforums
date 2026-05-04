@@ -16,7 +16,6 @@ Rails.application.routes.draw do
   # Forum
   get "downloads", to: "downloads#index", as: :downloads
   get "leaderboard", to: "leaderboards#index", as: :leaderboard
-  get "milestones", to: "milestones#index", as: :milestones
   resources :categories, only: %i[index show]
 
   resources :subforums, only: %i[show] do
