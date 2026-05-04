@@ -55,5 +55,7 @@ window.siteAlert = (message) => siteConfirm(message, { alert: true, danger: fals
 document.addEventListener("turbo:load", () => {
   if (window.Turbo) {
     window.Turbo.config.forms.confirm = (message) => siteConfirm(message)
+    // Disable prefetch on hover to improve performance
+    window.Turbo.config.drive.prefetch = false
   }
 })

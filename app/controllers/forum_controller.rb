@@ -8,9 +8,12 @@ class ForumController < ApplicationController
     @categories = Category.includes(subforums: :category).order(:position, :name)
 
     subforum_ids = @categories.flat_map(&:subforums).map(&:id)
-    @last_post_by_subforum = last_post_per_subforum(subforum_ids)
+    # Cache last post info per subforum to avoid expensive query on every request
+    @last_post_by_subforum = Rails.cache.fetch("forum/last_posts/#{subforum_ids.hash}", expires_in: 2.minutes) do
+      last_post_per_subforum(subforum_ids)
+    end
 
-    @stats = Rails.cache.fetch("forum_stats", expires_in: 60.seconds) do
+    @stats = Rails.cache.fetch("forum_stats", expires_in: 5.minutes) do
       {
         threads:   ForumThread.count,
         posts:     Post.where(deleted: false).count,
