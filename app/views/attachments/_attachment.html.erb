@@ -11,9 +11,10 @@
   <% if is_video %>
     <div style="background:#000; position:relative;">
       <video data-controller="video-player"
+             data-video-player-src-value="<%= rails_blob_url(attachment.file) %>"
+             data-video-player-type-value="<%= attachment.content_type %>"
              style="width:100%; display:block;"
              playsinline preload="metadata">
-        <source src="<%= attachment.file.url(expires_in: 1.hour, disposition: "inline") %>" type="<%= attachment.content_type %>">
       </video>
     </div>
     <div style="padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
