@@ -17,7 +17,7 @@ Rails.application.configure do
     policy.form_action :self
     policy.frame_ancestors :none
     policy.connect_src :self, "https://cloudflareinsights.com"
-    policy.media_src   :self
+    policy.media_src   :self, :https
   end
 
   config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }

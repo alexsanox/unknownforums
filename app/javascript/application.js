@@ -52,13 +52,43 @@ function siteConfirm(message, options = {}) {
 window.siteConfirm = siteConfirm
 window.siteAlert = (message) => siteConfirm(message, { alert: true, danger: false, confirmText: "OK" })
 
+let _appBootDone = false
 document.addEventListener("turbo:load", () => {
   if (window.Turbo) {
     window.Turbo.config.forms.confirm = (message) => siteConfirm(message)
     window.Turbo.config.drive.prefetch = false
   }
+  if (!_appBootDone) {
+    _appBootDone = true
+    initLightbox()
+  }
   initMentionAutocomplete()
 })
+
+/* ── Image lightbox ── */
+function initLightbox() {
+  const overlay = document.createElement("div")
+  overlay.id = "img-lightbox"
+  overlay.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;cursor:zoom-out;"
+  overlay.innerHTML = '<img id="img-lightbox-img" style="max-width:94vw;max-height:92vh;border-radius:3px;box-shadow:0 8px 40px rgba(0,0,0,0.7);">'
+  document.body.appendChild(overlay)
+
+  document.addEventListener("click", (e) => {
+    const img = e.target.closest("[data-lightbox-src]")
+    if (img) {
+      document.getElementById("img-lightbox-img").src = img.dataset.lightboxSrc
+      overlay.style.display = "flex"
+      return
+    }
+    if (e.target === overlay || e.target.id === "img-lightbox-img") {
+      overlay.style.display = "none"
+    }
+  })
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") overlay.style.display = "none"
+  })
+}
 
 /* ── @mention autocomplete ── */
 function initMentionAutocomplete() {
