@@ -1,7 +1,14 @@
 class UsersController < ApplicationController
-  before_action :set_user
+  before_action :set_user, except: %i[search]
   before_action :require_login, only: %i[edit update ban unban]
   before_action :require_admin, only: %i[ban unban]
+
+  def search
+    q = params[:q].to_s.strip
+    return render json: [] if q.length < 1
+    users = User.where("username ILIKE ?", "#{q}%").order(:username).limit(8).pluck(:id, :username)
+    render json: users.map { |id, username| { id: id, username: username } }
+  end
 
   def show
     @threads  = @user.forum_threads.order(created_at: :desc).page(params[:page]).per(15)

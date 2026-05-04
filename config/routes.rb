@@ -66,6 +66,9 @@ Rails.application.routes.draw do
   end
 
   resources :users, only: %i[show edit update] do
+    collection do
+      get :search
+    end
     member do
       patch :ban
       patch :unban

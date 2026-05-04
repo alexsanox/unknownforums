@@ -95,9 +95,13 @@ module ApplicationHelper
   def markdown_post_body(body)
     markdown = normalize_markdown_tables(normalize_markdown_fences(body.to_s))
     html = Kramdown::Document.new(markdown, hard_wrap: true, syntax_highlighter: nil).to_html
-    html = html.gsub(/@([A-Za-z0-9_\-]{3,30})/) { "<strong>#{$&}</strong>" }
+    html = html.gsub(/@([A-Za-z0-9_\-]{3,30})/) do
+      username = $1
+      path = Rails.application.routes.url_helpers.user_path(username)
+      "<a href=\"#{path}\" class=\"mention\">@#{username}</a>"
+    end
     sanitize html,
-      tags: %w[p br strong em b i u a ul ol li blockquote code pre hr h1 h2 h3 h4 h5 h6 table thead tbody tr th td],
+      tags: %w[p br strong em b i u a span ul ol li blockquote code pre hr h1 h2 h3 h4 h5 h6 table thead tbody tr th td],
       attributes: %w[href title class]
   end
 
