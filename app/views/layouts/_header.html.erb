@@ -52,7 +52,7 @@
           <% if current_user.can_moderate? %>
             <a href="<%= admin_root_path %>" style="color:#f0c060;">Admin Panel</a>
           <% end %>
-          <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-muted btn-sm" %>
+          <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-muted btn-sm", data: { turbo: false } %>
         <% else %>
           <a href="<%= login_path %>">Login</a>
           <a href="<%= register_path %>">Register</a>

@@ -11,7 +11,7 @@
       <p style="font-size:11px; color:#888; line-height:1.5; margin-top:0;">
         If email 2FA is enabled on your profile, a login code will be sent after your password is accepted.
       </p>
-      <%= form_with url: login_path do |f| %>
+      <%= form_with url: login_path, data: { turbo: false } do |f| %>
         <div style="margin-bottom:10px;">
           <label style="display:block; font-size:11px; color:#888; margin-bottom:3px;">Username:</label>
           <%= f.text_field :username, style: "width:100%;", autocomplete: "username" %>

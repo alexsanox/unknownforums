@@ -8,7 +8,7 @@
       Enter the 6-digit code sent to <strong><%= @user.email %></strong>.
     </p>
 
-    <%= form_with url: email_otp_path, method: :post do |f| %>
+    <%= form_with url: email_otp_path, method: :post, data: { turbo: false } do |f| %>
       <div style="margin-bottom:10px;">
         <%= label_tag :code, "Verification code", style: "display:block; margin-bottom:4px; font-size:11px; color:#888;" %>
         <%= text_field_tag :code, nil, maxlength: 6, inputmode: "numeric", autocomplete: "one-time-code", autofocus: true, style: "width:100%; text-align:center; font-size:22px; letter-spacing:6px;" %>
@@ -18,7 +18,7 @@
     <% end %>
 
     <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-      <%= button_to "Send new code", resend_email_otp_path, method: :post, class: "btn btn-sm" %>
+      <%= button_to "Send new code", resend_email_otp_path, method: :post, class: "btn btn-sm", data: { turbo: false } %>
       <span style="font-size:10px; color:#666;">Codes expire in <%= (User::EMAIL_OTP_EXPIRATION / 60).to_i %> minutes.</span>
     </div>
   </div>
