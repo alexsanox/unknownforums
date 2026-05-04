@@ -31,7 +31,7 @@ class NotificationDispatcher
       notifiable: @post,
       message:    "#{@author.username} replied in your thread \"#{@thread.title.truncate(60)}\""
     )
-    UserMailer.thread_reply_notification(owner, @post).deliver_later
+    UserMailer.thread_reply_notification(owner, @post).deliver_later(queue: :mailers)
   end
 
   def notify_subscribers
@@ -44,13 +44,15 @@ class NotificationDispatcher
         message:    "#{@author.username} replied in \"#{@thread.title.truncate(60)}\""
       )
       if subscriber.email_on_reply? && subscriber.email.present?
-        UserMailer.thread_reply_notification(subscriber, @post).deliver_later
+        UserMailer.thread_reply_notification(subscriber, @post).deliver_later(queue: :mailers)
       end
     end
   end
 
+  MENTION_LIMIT = 5
+
   def notify_mentions
-    mentioned_usernames = @post.body.scan(/@([A-Za-z0-9_\-]{3,30})/).flatten.uniq
+    mentioned_usernames = @post.body.scan(/@([A-Za-z0-9_\-]{3,30})/).flatten.uniq.first(MENTION_LIMIT)
     return if mentioned_usernames.empty?
 
     User.where(username: mentioned_usernames).where.not(id: @author.id).find_each do |user|
@@ -62,7 +64,7 @@ class NotificationDispatcher
         message:    "#{@author.username} mentioned you in \"#{@thread.title.truncate(60)}\""
       )
       if user.email_on_mention? && user.email.present?
-        UserMailer.mention_notification(user, @post).deliver_later
+        UserMailer.mention_notification(user, @post).deliver_later(queue: :mailers)
       end
     end
   end

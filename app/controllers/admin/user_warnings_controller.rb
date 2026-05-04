@@ -6,7 +6,7 @@ class Admin::UserWarningsController < ApplicationController
   def create
     @warning = @user.warnings.build(warning_params.merge(warned_by: current_user))
     if @warning.save
-      UserMailer.warning_notification(@user, @warning).deliver_later if @user.email.present?
+      UserMailer.warning_notification(@user, @warning).deliver_later(queue: :mailers) if @user.email.present?
       AuditLog.record(actor: current_user, action: "warn_user", target: @user,
                       details: "Severity: #{@warning.severity}. Reason: #{@warning.reason}", ip: request.ip)
       redirect_to admin_user_path(@user), notice: "Warning issued."
