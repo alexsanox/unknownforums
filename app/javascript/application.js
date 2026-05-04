@@ -2,6 +2,12 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 
+document.addEventListener("turbo:load", () => {
+  if (document.querySelector("meta[name='turbo-clear-cache']")) {
+    Turbo.clearCache()
+  }
+})
+
 function siteConfirm(message, options = {}) {
   const modal = document.getElementById("site-confirm-modal")
   const messageEl = document.getElementById("site-confirm-message")
