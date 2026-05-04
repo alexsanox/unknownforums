@@ -26,7 +26,7 @@ class MimeValidator
     "application/x-powershell"      => %w[application/x-powershell text/plain application/octet-stream],
     "application/javascript"        => %w[application/javascript text/javascript text/plain application/octet-stream],
     "text/javascript"               => %w[application/javascript text/javascript text/plain application/octet-stream],
-    "application/x-apple-diskimage" => %w[application/x-apple-diskimage application/octet-stream],
+    "application/x-apple-diskimage" => %w[application/x-apple-diskimage application/octet-stream]
   }.freeze
 
   def self.valid?(declared_type, file_io)
@@ -40,7 +40,7 @@ class MimeValidator
 
   def valid?
     detected = Marcel::MimeType.for(@file_io)
-    acceptable = ACCEPTABLE_DETECTIONS[@declared_type] || [@declared_type]
+    acceptable = ACCEPTABLE_DETECTIONS[@declared_type] || [ @declared_type ]
     acceptable.include?(detected.to_s)
   rescue StandardError => e
     Rails.logger.warn("MimeValidator failed: #{e.class}: #{e.message}")

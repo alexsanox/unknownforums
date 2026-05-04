@@ -19,20 +19,20 @@ class AddFeaturesBatch < ActiveRecord::Migration[8.1]
       t.string  :target_type
       t.bigint  :target_id
       t.text    :details
-      t.string  :ip_address
+      t.string :ip_address
       t.timestamps
     end
-    add_index :audit_logs, [ :target_type, :target_id ]
+    add_index :audit_logs, %i[ target_type target_id ]
     add_index :audit_logs, :created_at
 
     # Download history
     create_table :download_histories do |t|
       t.references :user,       null: false, foreign_key: true
       t.references :attachment, null: false, foreign_key: true
-      t.string  :ip_address
+      t.string :ip_address
       t.timestamps
     end
-    add_index :download_histories, [ :user_id, :attachment_id ]
+    add_index :download_histories, %i[ user_id attachment_id ]
     add_index :download_histories, :created_at
 
     # File comments

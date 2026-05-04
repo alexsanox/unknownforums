@@ -3,7 +3,7 @@ class NotificationsController < ApplicationController
 
   def index
     @mentions = current_user.notifications
-                            .where(kind: ["mention", "subscription"])
+                            .where(kind: [ "mention", "subscription" ])
                             .includes(:actor, :notifiable)
                             .recent
                             .page(params[:page]).per(20)
