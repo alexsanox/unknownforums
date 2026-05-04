@@ -10,11 +10,29 @@ class NotificationDispatcher
   end
 
   def dispatch
+    notify_thread_author
     notify_subscribers
     notify_mentions
   end
 
   private
+
+  def notify_thread_author
+    owner = @thread.user
+    return if owner == @author
+    return unless owner.email.present?
+    return unless owner.email_on_thread_reply?
+    return if @thread.subscribers.exists?(id: owner.id)
+
+    Notification.notify!(
+      recipient:  owner,
+      actor:      @author,
+      kind:       "subscription",
+      notifiable: @post,
+      message:    "#{@author.username} replied in your thread \"#{@thread.title.truncate(60)}\""
+    )
+    UserMailer.thread_reply_notification(owner, @post).deliver_later
+  end
 
   def notify_subscribers
     @thread.subscribers.where.not(id: @author.id).find_each do |subscriber|
