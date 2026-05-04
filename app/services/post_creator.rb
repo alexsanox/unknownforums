@@ -19,6 +19,8 @@ class PostCreator
     if @post.save
       ThreadSubscription.subscribe!(user: @user, thread: @thread)
       NotificationDispatcher.dispatch_for_post(@post)
+      Trophy.check_and_award!(@user)
+      SpamDetector.check!(@post)
       @post
     else
       @errors = @post.errors.full_messages

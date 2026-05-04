@@ -1,0 +1,46 @@
+<% content_for :title, "My Downloads" %>
+<% noindex_page %>
+
+<div class="panel">
+  <div class="panel-header">My Download History</div>
+  <% if @histories.any? %>
+    <table style="width:100%;">
+      <thead>
+        <tr style="background:#2a2a2a; border-bottom:1px solid #444;">
+          <th style="padding:5px 10px; font-size:10px; color:#888; text-align:left;">File</th>
+          <th style="padding:5px 10px; font-size:10px; color:#888; text-align:left;">Uploaded by</th>
+          <th style="padding:5px 10px; font-size:10px; color:#888; text-align:left;">Downloaded</th>
+          <th style="padding:5px 10px; font-size:10px; color:#888;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @histories.each_with_index do |h, i| %>
+          <tr style="background:<%= i.even? ? '#242424' : '#202020' %>; border-top:1px solid #333;">
+            <td style="padding:7px 10px; font-size:12px;">
+              <%= link_to h.attachment.filename, attachment_path(h.attachment), style: "color:#7aabde;" %>
+              <div style="font-size:10px; color:#555;"><%= h.attachment.human_size %></div>
+            </td>
+            <td style="padding:7px 10px; font-size:11px; color:#888;">
+              <%= link_to h.attachment.user.username, user_path(h.attachment.user), style: "color:#888;" %>
+            </td>
+            <td style="padding:7px 10px; font-size:11px; color:#666;">
+              <%= h.created_at.strftime("%m/%d/%Y %H:%M") %>
+            </td>
+            <td style="padding:7px 10px; text-align:right;">
+              <a href="<%= download_attachment_path(h.attachment) %>" class="btn btn-sm" data-turbo="false">Download again</a>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="toolbar">
+      <span>Page <%= @histories.current_page %> of <%= @histories.total_pages %></span>
+      <div class="action-group">
+        <%= link_to_prev_page @histories, "← Prev", class: "btn btn-sm" %>
+        <%= link_to_next_page @histories, "Next →", class: "btn btn-sm" %>
+      </div>
+    </div>
+  <% else %>
+    <div style="padding:24px; text-align:center; color:#666; font-size:12px;">You haven't downloaded any files yet.</div>
+  <% end %>
+</div>

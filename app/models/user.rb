@@ -19,6 +19,8 @@ class User < ApplicationRecord
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
   has_many :category_moderators, dependent: :destroy
   has_many :moderated_categories, through: :category_moderators, source: :category
+  has_many :trophies, dependent: :destroy
+  has_many :download_histories, dependent: :destroy
 
   has_one_attached :avatar
 

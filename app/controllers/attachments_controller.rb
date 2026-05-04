@@ -4,6 +4,8 @@ class AttachmentsController < ApplicationController
   before_action :authorize_attachment_access!, only: %i[show download]
 
   def show
+    @comments   = @attachment.file_comments.visible.includes(:user).order(:created_at)
+    @avg_rating = @attachment.file_comments.visible.where.not(rating: nil).average(:rating)
   end
 
   def download
@@ -12,6 +14,11 @@ class AttachmentsController < ApplicationController
     end
 
     @attachment.increment_download!
+    if logged_in?
+      DownloadHistory.create!(user: current_user, attachment: @attachment, ip_address: request.ip)
+      Trophy.check_and_award!(current_user)
+      Trophy.check_and_award!(@attachment.user) if @attachment.user != current_user
+    end
     redirect_to rails_blob_url(@attachment.file, disposition: "attachment", filename: @attachment.filename), allow_other_host: true
   end
 

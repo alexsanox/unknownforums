@@ -67,6 +67,19 @@
   </div>
 </div>
 
+<!-- Thread search -->
+<div class="toolbar" style="border-top:none; border-bottom:none;">
+  <%= form_with url: forum_thread_path(@thread), method: :get, style: "display:flex; gap:6px; align-items:center; flex:1;" do |f| %>
+    <%= f.text_field :q, value: params[:q], placeholder: "Search this thread…",
+          style: "flex:1; font-size:11px; padding:3px 6px; background:#1b1b1b; border:1px solid #444; color:#cfcfcf;" %>
+    <%= f.submit "Search", class: "btn btn-sm" %>
+    <% if params[:q].present? %>
+      <%= link_to "Clear", forum_thread_path(@thread), class: "btn btn-sm" %>
+      <span style="font-size:10px; color:#888;"><%= @posts.total_count %> result(s)</span>
+    <% end %>
+  <% end %>
+</div>
+
 <!-- Pagination top -->
 <div class="toolbar" style="border-top:none; border-bottom:none;">
   <span>Page <%= @posts.current_page %> of <%= @posts.total_pages %></span>
@@ -80,16 +93,34 @@
 <% if @posts.last_page? %>
   <%= turbo_stream_from @thread, :posts %>
 <% end %>
+<% _can_mod = can_moderate_thread?(@thread) %>
+<%= form_with url: bulk_delete_posts_forum_thread_path(@thread), method: :delete, id: "bulk-delete-form" do %>
 <div id="posts" style="border:1px solid #444; border-top:none;">
   <% @posts.each_with_index do |post, i| %>
-    <%= render "posts/post",
-      post: post,
-      thread: @thread,
-      post_number: (@posts.current_page - 1) * 20 + i + 1,
-      viewer: current_user,
-      can_moderate: can_moderate_thread?(@thread) %>
+    <div style="position:relative;">
+      <% if _can_mod %>
+        <div style="position:absolute; top:8px; left:6px; z-index:1;">
+          <input type="checkbox" name="post_ids[]" value="<%= post.id %>" class="bulk-check" style="width:13px; height:13px;">
+        </div>
+      <% end %>
+      <div style="<%= _can_mod ? 'padding-left:28px;' : '' %>">
+        <%= render "posts/post",
+          post: post,
+          thread: @thread,
+          post_number: (@posts.current_page - 1) * 20 + i + 1,
+          viewer: current_user,
+          can_moderate: _can_mod %>
+      </div>
+    </div>
   <% end %>
 </div>
+<% if _can_mod %>
+  <div id="bulk-delete-bar" style="display:none; background:#2a1a1a; border:1px solid #6a2a2a; border-top:none; padding:6px 10px; justify-content:space-between; align-items:center;">
+    <span id="bulk-count" style="font-size:11px; color:#cfcfcf;">0 posts selected</span>
+    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete selected posts?')">Delete Selected</button>
+  </div>
+<% end %>
+<% end %>
 
 <!-- Pagination bottom -->
 <div class="toolbar" style="border-top:none; margin-bottom:12px;">
@@ -133,6 +164,18 @@
 <% end %>
 
 <script>
+(function() {
+  const bar   = document.getElementById('bulk-delete-bar');
+  const count = document.getElementById('bulk-count');
+  if (!bar) return;
+  document.addEventListener('change', function(e) {
+    if (!e.target.classList.contains('bulk-check')) return;
+    const checked = document.querySelectorAll('.bulk-check:checked').length;
+    count.textContent = checked + ' post' + (checked === 1 ? '' : 's') + ' selected';
+    bar.style.display = checked > 0 ? 'flex' : 'none';
+  });
+})();
+
 function quotePost(postId) {
   const postEl = document.getElementById('post-' + postId);
   const body = postEl ? postEl.querySelector('[data-post-body]') : null;

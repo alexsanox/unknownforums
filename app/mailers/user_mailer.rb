@@ -8,4 +8,26 @@ class UserMailer < ApplicationMailer
     subject = @purpose == "registration" ? "Verify your UnknownForums email" : "Your UnknownForums login code"
     mail(to: @user.email, subject: subject)
   end
+
+  def thread_reply_notification(user, post)
+    @user   = user
+    @post   = post
+    @thread = post.thread
+    @author = post.user
+    mail(to: @user.email, subject: "New reply in \"#{@thread.title.truncate(60)}\"")
+  end
+
+  def mention_notification(user, post)
+    @user   = user
+    @post   = post
+    @thread = post.thread
+    @author = post.user
+    mail(to: @user.email, subject: "#{@author.username} mentioned you in \"#{@thread.title.truncate(60)}\"")
+  end
+
+  def warning_notification(user, warning)
+    @user    = user
+    @warning = warning
+    mail(to: @user.email, subject: "You have received a warning on UnknownForums")
+  end
 end

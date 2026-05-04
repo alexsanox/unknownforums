@@ -1,0 +1,9 @@
+Hello <%= @user.username %>,
+
+<%= @author.username %> mentioned you in "<%= @thread.title %>":
+
+<%= truncate(strip_tags(@post.body), length: 300) %>
+
+View post: <%= forum_thread_url(@thread, anchor: "post-#{@post.id}") %>
+
+Manage notifications: <%= notifications_url %>

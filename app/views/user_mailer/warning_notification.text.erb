@@ -1,0 +1,13 @@
+Hello <%= @user.username %>,
+
+You have received a <%= @warning.severity.capitalize %> warning on UnknownForums.
+
+Reason: <%= @warning.reason %>
+
+<% if @warning.expires_at.present? %>
+This warning expires on <%= @warning.expires_at.strftime("%B %d, %Y") %>.
+<% else %>
+This warning does not expire.
+<% end %>
+
+If you believe this is in error, please contact the moderation team via private message.

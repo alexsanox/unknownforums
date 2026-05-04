@@ -1,0 +1,21 @@
+<p>Hello <strong><%= @user.username %></strong>,</p>
+
+<p><strong><%= @author.username %></strong> posted a new reply in a thread you are watching:</p>
+
+<p style="font-size:16px; font-weight:bold;"><%= @thread.title %></p>
+
+<blockquote style="border-left:3px solid #555; padding:6px 12px; color:#888; font-size:13px;">
+  <%= truncate(strip_tags(@post.body), length: 300) %>
+</blockquote>
+
+<p>
+  <a href="<%= forum_thread_url(@thread, anchor: "post-#{@post.id}") %>"
+     style="background:#4a90d9; color:#fff; padding:8px 16px; text-decoration:none; display:inline-block;">
+    View Reply
+  </a>
+</p>
+
+<p class="muted">
+  You are receiving this because you are watching this thread.
+  <a href="<%= notifications_url %>">Manage notifications</a>
+</p>

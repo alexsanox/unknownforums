@@ -9,12 +9,16 @@ class ForumThreadsController < ApplicationController
       @thread.increment_views!
       session[:viewed_threads] = (viewed + [ @thread.id ]).last(100)
     end
-    @posts = @thread.posts.visible
-                    .includes(:user, :quote_post,
-                              attachments: [ :file_attachment, :versions ],
-                              user: { avatar_attachment: :blob })
-                    .order(:created_at)
-                    .page(params[:page])
+    posts_scope = @thread.posts.visible
+                         .includes(:user, :quote_post,
+                                   attachments: [ :file_attachment, :versions ],
+                                   user: { avatar_attachment: :blob })
+                         .order(:created_at)
+    if params[:q].present?
+      query = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q].strip)}%"
+      posts_scope = posts_scope.where("posts.body ILIKE :q", q: query)
+    end
+    @posts = posts_scope.page(params[:page])
     @post = Post.new
     @subscription = logged_in? && ThreadSubscription.find_by(user: current_user, forum_thread: @thread)
     @subscription&.mark_read!
@@ -65,27 +69,33 @@ class ForumThreadsController < ApplicationController
 
   def destroy
     subforum = @thread.subforum
+    AuditLog.record(actor: current_user, action: "delete_thread", target: @thread,
+                    details: "\"#{@thread.title}\" in #{subforum.name}", ip: request.ip)
     @thread.destroy
     redirect_to subforum_path(subforum), notice: "Thread deleted."
   end
 
   def lock
     @thread.update!(locked: true)
+    AuditLog.record(actor: current_user, action: "lock_thread", target: @thread, ip: request.ip)
     redirect_to forum_thread_path(@thread), notice: "Thread locked."
   end
 
   def unlock
     @thread.update!(locked: false)
+    AuditLog.record(actor: current_user, action: "unlock_thread", target: @thread, ip: request.ip)
     redirect_to forum_thread_path(@thread), notice: "Thread unlocked."
   end
 
   def pin
     @thread.update!(pinned: true)
+    AuditLog.record(actor: current_user, action: "pin_thread", target: @thread, ip: request.ip)
     redirect_to forum_thread_path(@thread), notice: "Thread pinned."
   end
 
   def unpin
     @thread.update!(pinned: false)
+    AuditLog.record(actor: current_user, action: "unpin_thread", target: @thread, ip: request.ip)
     redirect_to forum_thread_path(@thread), notice: "Thread unpinned."
   end
 
@@ -93,6 +103,18 @@ class ForumThreadsController < ApplicationController
     new_subforum = Subforum.find(params[:subforum_id])
     @thread.update!(subforum: new_subforum)
     redirect_to forum_thread_path(@thread), notice: "Thread moved."
+  end
+
+  def bulk_delete_posts
+    require_category_staff
+    return redirect_to forum_thread_path(@thread), alert: "No posts selected." if params[:post_ids].blank?
+
+    post_ids = params[:post_ids].map(&:to_i)
+    posts    = @thread.posts.where(id: post_ids)
+    count    = posts.update_all(deleted: true)
+    AuditLog.record(actor: current_user, action: "bulk_delete_posts", target: @thread,
+                    details: "Deleted #{count} post(s): IDs #{post_ids.join(', ')}", ip: request.ip)
+    redirect_to forum_thread_path(@thread), notice: "#{count} post(s) deleted."
   end
 
   private

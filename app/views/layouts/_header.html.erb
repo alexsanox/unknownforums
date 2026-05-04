@@ -18,6 +18,7 @@
       <a href="<%= leaderboard_path %>">Leaderboard</a>
       <% if logged_in? %>
         <a href="<%= private_messages_path %>">Messages</a>
+        <a href="<%= my_downloads_path %>">My Downloads</a>
         <a href="<%= user_path(current_user) %>">Profile</a>
       <% end %>
     </div>

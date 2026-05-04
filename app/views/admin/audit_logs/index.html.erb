@@ -1,0 +1,64 @@
+<% content_for :title, "Audit Log" %>
+
+<div style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+  <span style="font-size:13px; font-weight:bold; color:#e0e0e0;">Audit Log</span>
+</div>
+
+<div class="panel" style="margin-bottom:10px;">
+  <div class="panel-body">
+    <%= form_with url: admin_audit_logs_path, method: :get, class: "admin-search-form" do |f| %>
+      <div class="admin-search-field">
+        <label>Action</label>
+        <%= f.select :action_filter,
+          [["Any", ""]] + %w[delete_post delete_thread lock_thread unlock_thread pin_thread unpin_thread warn_user remove_warning ban_user].map { |a| [a.humanize, a] },
+          { selected: params[:action_filter] }, style: "min-width:160px;" %>
+      </div>
+      <div class="admin-search-actions">
+        <%= f.submit "Filter", class: "btn btn-primary" %>
+        <a href="<%= admin_audit_logs_path %>" class="btn">Reset</a>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="panel">
+  <table style="width:100%;">
+    <thead>
+      <tr style="background:#222; font-size:10px; color:#666; text-transform:uppercase;">
+        <th style="padding:4px 10px; text-align:left;">When</th>
+        <th style="padding:4px 10px; text-align:left;">Who</th>
+        <th style="padding:4px 10px; text-align:left;">Action</th>
+        <th style="padding:4px 10px; text-align:left;">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @logs.empty? %>
+        <tr><td colspan="4" style="padding:20px; text-align:center; color:#666; font-size:12px;">No audit log entries.</td></tr>
+      <% end %>
+      <% @logs.each_with_index do |log, i| %>
+        <tr style="background:<%= i.even? ? '#242424' : '#202020' %>; border-top:1px solid #333;">
+          <td style="padding:6px 10px; font-size:10px; color:#666; white-space:nowrap;">
+            <%= log.created_at.strftime("%m/%d %H:%M") %>
+          </td>
+          <td style="padding:6px 10px; font-size:11px;">
+            <%= link_to log.actor.username, admin_user_path(log.actor), style: "color:#cfcfcf;" %>
+          </td>
+          <td style="padding:6px 10px; font-size:11px;">
+            <code style="background:#1a1a1a; padding:1px 4px; font-size:10px;"><%= log.action %></code>
+          </td>
+          <td style="padding:6px 10px; font-size:11px; color:#888;">
+            <%= log.details.presence || "—" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="toolbar" style="margin-top:8px;">
+  <span>Page <%= @logs.current_page %> of <%= @logs.total_pages %></span>
+  <div class="action-group">
+    <%= link_to_prev_page @logs, "← Prev", class: "btn btn-sm" %>
+    <%= link_to_next_page @logs, "Next →", class: "btn btn-sm" %>
+  </div>
+</div>

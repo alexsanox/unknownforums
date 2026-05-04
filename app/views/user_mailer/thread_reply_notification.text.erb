@@ -1,0 +1,10 @@
+Hello <%= @user.username %>,
+
+<%= @author.username %> posted a new reply in "<%= @thread.title %>":
+
+<%= truncate(strip_tags(@post.body), length: 300) %>
+
+View reply: <%= forum_thread_url(@thread, anchor: "post-#{@post.id}") %>
+
+You are receiving this because you are watching this thread.
+Manage notifications: <%= notifications_url %>

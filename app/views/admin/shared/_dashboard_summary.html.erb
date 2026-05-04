@@ -37,5 +37,9 @@
     <a href="<%= admin_attack_events_path %>" class="btn <%= active_admin_section == 'attack_events' ? 'btn-primary' : '' %>">Attack Events</a>
     <a href="<%= admin_file_leaderboard_path %>" class="btn <%= active_admin_section == 'file_leaderboard' ? 'btn-primary' : '' %>">File Leaderboard</a>
     <a href="<%= admin_site_pages_path %>" class="btn <%= active_admin_section == 'site_pages' ? 'btn-primary' : '' %>">Edit Rules / Terms</a>
+    <a href="<%= admin_audit_logs_path %>" class="btn <%= active_admin_section == 'audit_logs' ? 'btn-primary' : '' %>">Audit Log</a>
+    <% if admin? %>
+      <a href="<%= admin_site_settings_path %>" class="btn <%= active_admin_section == 'site_settings' ? 'btn-primary' : '' %>" style="<%= SiteSetting.maintenance_mode? ? 'border-color:#f0a030; color:#f0a030;' : '' %>">Site Settings<%= SiteSetting.maintenance_mode? ? ' ⚠' : '' %></a>
+    <% end %>
   </div>
 </div>

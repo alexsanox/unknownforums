@@ -1,0 +1,15 @@
+<p>Hello <strong><%= @user.username %></strong>,</p>
+
+<p>You have received a <strong><%= @warning.severity.capitalize %></strong> warning on UnknownForums.</p>
+
+<div style="background:#2a1a1a; border:1px solid #6a2a2a; padding:10px 14px; margin:12px 0;">
+  <div style="font-size:12px; color:#cfcfcf;"><%= @warning.reason %></div>
+</div>
+
+<% if @warning.expires_at.present? %>
+  <p class="muted">This warning expires on <%= @warning.expires_at.strftime("%B %d, %Y") %>.</p>
+<% else %>
+  <p class="muted">This warning does not expire.</p>
+<% end %>
+
+<p class="muted">If you believe this is in error, please contact the moderation team via private message.</p>

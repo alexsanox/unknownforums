@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   before_action :set_current_user
   before_action :prevent_html_caching
   before_action :track_current_user_activity
+  before_action :check_maintenance_mode
   before_action :check_banned
   before_action :set_admin_summary, if: :show_admin_summary?
 
@@ -70,6 +71,14 @@ class ApplicationController < ActionController::Base
       files: Attachment.count,
       pending_files: Attachment.pending_approval.count
     }
+  end
+
+  def check_maintenance_mode
+    return if admin?
+    return unless SiteSetting.maintenance_mode?
+    return if controller_path.start_with?("sessions", "admin")
+    @maintenance_message = SiteSetting.maintenance_message
+    render "shared/maintenance", layout: "application", status: :service_unavailable
   end
 
   def not_found

@@ -25,6 +25,9 @@ class NotificationDispatcher
         notifiable: @post,
         message:    "#{@author.username} replied in \"#{@thread.title.truncate(60)}\""
       )
+      if subscriber.email_on_reply? && subscriber.email.present?
+        UserMailer.thread_reply_notification(subscriber, @post).deliver_later
+      end
     end
   end
 
@@ -40,6 +43,9 @@ class NotificationDispatcher
         notifiable: @post,
         message:    "#{@author.username} mentioned you in \"#{@thread.title.truncate(60)}\""
       )
+      if user.email_on_mention? && user.email.present?
+        UserMailer.mention_notification(user, @post).deliver_later
+      end
     end
   end
 end

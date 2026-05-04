@@ -1,5 +1,10 @@
 <% content_for :title, "Notifications" %>
 
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+  <span style="font-size:13px; font-weight:bold; color:#e0e0e0;">Notifications</span>
+  <%= button_to "Mark All Read", mark_all_read_notifications_path, method: :patch, class: "btn btn-sm" %>
+</div>
+
 <!-- Watched Threads -->
 <div class="panel" style="margin-bottom:12px;">
   <div class="panel-header">

@@ -28,6 +28,9 @@ class Attachment < ApplicationRecord
   belongs_to :user
   belongs_to :parent_attachment, class_name: "Attachment", optional: true
   has_many   :versions, class_name: "Attachment", foreign_key: :parent_attachment_id, dependent: :destroy
+  has_many   :file_comments, dependent: :destroy
+  has_many   :file_tags, dependent: :destroy
+  has_many   :download_histories, dependent: :destroy
   has_one_attached :file
 
   validates :filename, presence: true

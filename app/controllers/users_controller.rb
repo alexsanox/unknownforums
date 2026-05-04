@@ -4,8 +4,9 @@ class UsersController < ApplicationController
   before_action :require_admin, only: %i[ban unban]
 
   def show
-    @threads = @user.forum_threads.order(created_at: :desc).page(params[:page]).per(15)
-    @posts = @user.posts.visible.order(created_at: :desc).page(params[:page]).per(15)
+    @threads  = @user.forum_threads.order(created_at: :desc).page(params[:page]).per(15)
+    @posts    = @user.posts.visible.order(created_at: :desc).page(params[:page]).per(15)
+    @trophies = @user.trophies.recent
   end
 
   def edit
@@ -39,7 +40,7 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    permitted = params.require(:user).permit(:email, :email_two_factor_enabled, :show_presence, :signature, :password, :password_confirmation, :avatar)
+    permitted = params.require(:user).permit(:email, :email_two_factor_enabled, :show_presence, :email_on_reply, :email_on_mention, :signature, :password, :password_confirmation, :avatar)
     if permitted[:password].blank?
       permitted.delete(:password)
       permitted.delete(:password_confirmation)

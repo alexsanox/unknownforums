@@ -30,6 +30,7 @@ Rails.application.routes.draw do
       patch :pin
       patch :unpin
       patch :move
+      delete :bulk_delete_posts
     end
   end
 
@@ -41,11 +42,17 @@ Rails.application.routes.draw do
       get   :new_version
       post  :upload_version
     end
+    resources :file_comments, only: %i[create destroy]
+    resources :file_tags,     only: %i[create destroy]
   end
 
   resources :reputations, only: %i[create destroy]
   resources :reports, only: %i[new create]
-  resources :notifications, only: %i[index]
+  resources :notifications, only: %i[index] do
+    collection do
+      patch :mark_all_read
+    end
+  end
   get "search", to: "search#index", as: :search
 
   resources :forum_threads, path: "threads", only: [] do
@@ -64,6 +71,8 @@ Rails.application.routes.draw do
       patch :unban
     end
   end
+
+  get "my/downloads", to: "download_histories#index", as: :my_downloads
 
   namespace :admin do
     root "dashboard#index"
@@ -86,6 +95,8 @@ Rails.application.routes.draw do
     resources :reports,       only: %i[index show update]
     resources :site_pages,    only: %i[index edit update]
     resources :attack_events, only: %i[index]
+    resources :audit_logs,    only: %i[index]
+    resource  :site_settings, only: %i[index update]
     patch "bulk_threads", to: "bulk_threads#update", as: :bulk_threads
     get "forums", to: "forums#index", as: :forums
     get "file_leaderboard", to: "file_leaderboard#index", as: :file_leaderboard

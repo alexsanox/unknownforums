@@ -36,6 +36,8 @@ class PostsController < ApplicationController
 
   def destroy
     authorize_post!
+    AuditLog.record(actor: current_user, action: "delete_post", target: @post,
+                    details: "In thread \"#{@thread.title}\"", ip: request.ip) if current_user != @post.user
     @post.update!(deleted: true)
     redirect_to forum_thread_path(@thread), notice: "Post deleted."
   end

@@ -1,0 +1,126 @@
+<% content_for :title, @attachment.filename %>
+<% noindex_page %>
+
+<div style="margin-bottom:8px;">
+  <%= link_to "← Back", :back, class: "btn btn-sm" %>
+</div>
+
+<!-- File info panel -->
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <span><%= @attachment.filename %></span>
+    <div class="action-group">
+      <% if logged_in? && (moderator_or_admin? || (current_user == @attachment.root_attachment.user || can_moderate_thread?(@attachment.attachable.try(:thread) || ForumThread.new))) %>
+        <%= link_to "Upload Version", new_version_attachment_path(@attachment.root_attachment), class: "btn btn-sm" %>
+      <% end %>
+      <% if logged_in? && moderator_or_admin? %>
+        <% if @attachment.approved? %>
+          <%= button_to "Revoke Approval", unapprove_attachment_path(@attachment), method: :patch, class: "btn btn-sm", data: { turbo_confirm: "Revoke approval?" } %>
+        <% else %>
+          <%= button_to "Approve", approve_attachment_path(@attachment), method: :patch, class: "btn btn-success btn-sm" %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <div class="panel-body">
+    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+      <div>
+        <div style="font-size:10px; color:#666;">Size</div>
+        <div style="font-size:12px;"><%= @attachment.human_size %></div>
+      </div>
+      <div>
+        <div style="font-size:10px; color:#666;">Downloads</div>
+        <div style="font-size:12px;"><%= @attachment.download_count %></div>
+      </div>
+      <div>
+        <div style="font-size:10px; color:#666;">Uploaded by</div>
+        <div style="font-size:12px;"><%= link_to @attachment.user.username, user_path(@attachment.user) %></div>
+      </div>
+      <div>
+        <div style="font-size:10px; color:#666;">Status</div>
+        <div style="font-size:12px;">
+          <% if @attachment.approved? %>
+            <span style="color:#60c060;">Verified</span>
+          <% else %>
+            <span style="color:#e0a030;">Not Verified</span>
+          <% end %>
+          <%= render "attachments/vt_badge", attachment: @attachment %>
+        </div>
+      </div>
+      <% if @avg_rating %>
+        <div>
+          <div style="font-size:10px; color:#666;">Rating</div>
+          <div style="font-size:12px;"><%= "★" * @avg_rating.round %>&#9733; (<%= @avg_rating.round(1) %>/5)</div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Tags -->
+    <% if @attachment.file_tags.any? %>
+      <div style="margin-top:10px;">
+        <% @attachment.file_tags.each do |ft| %>
+          <span style="display:inline-block; background:#1e1e1e; border:1px solid #444; padding:1px 7px; font-size:10px; color:#888; margin-right:3px;"><%= ft.tag %></span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Add tag (moderators/owner) -->
+    <% if logged_in? && (moderator_or_admin? || current_user == @attachment.user) %>
+      <div style="margin-top:10px;">
+        <%= form_with url: attachment_file_tags_path(@attachment), method: :post, style: "display:flex; gap:6px;" do |f| %>
+          <%= f.text_field :tag, placeholder: "add-tag", style: "width:130px; font-size:11px;", name: "file_tag[tag]" %>
+          <%= f.submit "+ Tag", class: "btn btn-sm" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div style="margin-top:12px;">
+      <a href="<%= download_attachment_path(@attachment) %>" class="btn btn-primary" data-turbo="false">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- Comments -->
+<div class="panel">
+  <div class="panel-header">Comments (<%= @comments.size %>)</div>
+
+  <% @comments.each do |comment| %>
+    <div style="padding:10px 12px; border-top:1px solid #333;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <span style="font-size:12px; font-weight:bold;"><%= link_to comment.user.username, user_path(comment.user) %></span>
+          <% if comment.rating.present? %>
+            <span style="color:#f0c060; margin-left:6px; font-size:11px;"><%= "★" * comment.rating %><%= "☆" * (5 - comment.rating) %></span>
+          <% end %>
+          <span style="font-size:10px; color:#555; margin-left:8px;"><%= comment.created_at.strftime("%m/%d/%Y %H:%M") %></span>
+        </div>
+        <% if logged_in? && (current_user == comment.user || moderator_or_admin?) %>
+          <%= button_to "Del", attachment_file_comment_path(@attachment, comment), method: :delete,
+                class: "btn btn-danger btn-sm", style: "padding:1px 5px;",
+                data: { turbo_confirm: "Delete comment?" } %>
+        <% end %>
+      </div>
+      <div style="font-size:12px; color:#cfcfcf; margin-top:4px;"><%= simple_format(h(comment.body)) %></div>
+    </div>
+  <% end %>
+
+  <% if @comments.empty? %>
+    <div style="padding:16px; text-align:center; color:#666; font-size:12px;">No comments yet. Be the first!</div>
+  <% end %>
+
+  <% if logged_in? %>
+    <div style="padding:12px; border-top:1px solid #444; background:#1e1e1e;">
+      <%= form_with url: attachment_file_comments_path(@attachment), method: :post do |f| %>
+        <div style="margin-bottom:8px;">
+          <label style="font-size:11px; color:#888;">Rating (optional):</label>
+          <%= f.select :rating, [["No rating", ""]] + (1..5).map { |n| ["#{"★" * n} (#{n})", n] },
+                {}, name: "file_comment[rating]", style: "margin-left:6px; font-size:11px;" %>
+        </div>
+        <%= f.text_area :body, rows: 3, style: "width:100%; resize:vertical;", placeholder: "Leave a comment...", name: "file_comment[body]" %>
+        <div style="margin-top:6px;">
+          <%= f.submit "Post Comment", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
