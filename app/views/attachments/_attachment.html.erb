@@ -1,85 +1,96 @@
-<div style="background:#1e1e1e; border:1px solid #333; padding:6px 8px; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
-  <% if attachment.approved? %>
-    <span style="display:inline-block; width:8px; height:8px; background:#60c060; border-radius:50%; flex-shrink:0;" title="Approved"></span>
-  <% else %>
-    <span style="display:inline-block; width:8px; height:8px; background:#c06060; border-radius:50%; flex-shrink:0;" title="Not Approved"></span>
-  <% end %>
+<%
+  approved   = attachment.approved?
+  is_video   = attachment.video?
+  is_image   = attachment.image?
+  can_manage = logged_in? && (current_user == attachment.user || moderator_or_admin?)
+  can_mod    = logged_in? && moderator_or_admin?
+%>
+<div style="background:var(--bg3); border:1px solid var(--border); border-left:3px solid <%= approved ? '#3d9faf' : '#c06060' %>; border-radius:3px; margin-bottom:6px; overflow:hidden;">
 
-  <% if attachment.video? %>
-    <div style="width:100%;">
+  <%# ── Video player ── %>
+  <% if is_video %>
+    <div style="background:#000; position:relative;">
       <video data-controller="video-player"
-             style="max-width:100%; --plyr-color-main:#3d9faf; --plyr-video-background:#000;"
-             playsinline
-             preload="metadata">
+             style="width:100%; display:block;"
+             playsinline preload="metadata">
         <source src="<%= rails_blob_url(attachment.file) %>" type="<%= attachment.content_type %>">
-        Your browser does not support the video tag.
       </video>
-      <div style="font-size:10px; color:var(--text-muted); margin-top:6px; display:flex; align-items:center; gap:6px;">
-        <span style="color:var(--text-dim);"><%= attachment.filename %></span>
-        <span>(<%= attachment.human_size %>)</span>
-        <% if attachment.approved? %>
-          <span style="color:#60c060; font-weight:bold;">Verified</span>
+    </div>
+    <div style="padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+        <svg width="14" height="14" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span style="font-size:11px; color:var(--text-bright); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= attachment.filename %></span>
+        <span style="font-size:10px; color:var(--text-muted);">(<%= attachment.human_size %>)</span>
+        <% if approved %>
+          <span style="font-size:9px; font-weight:bold; color:#3d9faf; letter-spacing:.04em;">VERIFIED</span>
         <% else %>
-          <span style="color:#e0a030; font-weight:bold;">Not verified &mdash; may not be secure</span>
+          <span style="font-size:9px; font-weight:bold; color:#e0a030; letter-spacing:.04em;">UNVERIFIED</span>
         <% end %>
         <%= render "attachments/vt_badge", attachment: attachment %>
       </div>
-    </div>
-  <% elsif attachment.image? %>
-    <div>
-      <%= image_tag rails_blob_url(attachment.file), style: "max-width:400px; max-height:300px; border:1px solid #333;", loading: "lazy" %>
-      <div style="font-size:10px; color:#666; margin-top:2px;">
-        <%= attachment.filename %> (<%= attachment.human_size %>)
-        <% if attachment.approved? %>
-          <span style="color:#60c060; font-weight:bold; margin-left:4px;">Verified</span>
-        <% else %>
-          <span style="color:#e0a030; font-weight:bold; margin-left:4px;">Not verified &mdash; may not be secure</span>
-        <% end %>
-        <%= render "attachments/vt_badge", attachment: attachment %>
+      <div style="display:flex; gap:4px; flex-shrink:0;">
+        <%= render "attachments/mod_actions", attachment: attachment, approved: approved, can_manage: can_manage, can_mod: can_mod %>
       </div>
     </div>
-  <% else %>
-    <%= render "attachments/file_icon", attachment: attachment %>
-    <div style="flex:1; min-width:0;">
-      <div>
-        <a href="<%= download_attachment_path(attachment) %>" style="font-size:12px; color:#7aabde;" data-turbo="false"><%= attachment.filename %></a>
-        <% if attachment.approved? %>
-          <span style="color:#60c060; font-size:9px; font-weight:bold; margin-left:4px;">VERIFIED</span>
-        <% else %>
-          <span style="color:#e0a030; font-size:9px; font-weight:bold; margin-left:4px;">NOT VERIFIED</span>
-        <% end %>
-        <%= render "attachments/vt_badge", attachment: attachment %>
-      </div>
-      <div style="font-size:10px; color:#666;">
-        v<%= attachment.version %> &mdash;
-        <%= attachment.human_size %> &mdash; <%= attachment.download_count %> downloads
-        <% unless attachment.approved? %>
-          <span style="color:#e0a030;">&mdash; this file may not be secure</span>
-        <% end %>
-        <% if attachment.root_attachment.versions.any? %>
-          &mdash; <a href="<%= new_version_attachment_path(attachment.root_attachment) %>" style="color:#888; font-size:10px;"><%= attachment.root_attachment.versions.count + 1 %> versions</a>
-        <% end %>
-      </div>
-    </div>
-    <a href="<%= attachment_path(attachment) %>" class="btn btn-sm">Details</a>
-    <a href="<%= download_attachment_path(attachment) %>" class="btn btn-sm" data-turbo="false">Download</a>
-    <% if logged_in? && (current_user == attachment.root_attachment.user || moderator_or_admin?) %>
-      <a href="<%= new_version_attachment_path(attachment.root_attachment) %>" class="btn btn-sm" title="Upload new version">Upload version</a>
-    <% end %>
-  <% end %>
 
-  <div style="display:flex; gap:3px; flex-shrink:0;">
-    <% if logged_in? && moderator_or_admin? %>
-      <% if attachment.approved? %>
-        <%= button_to "Revoke", unapprove_attachment_path(attachment), method: :patch, class: "btn btn-sm", style: "padding:2px 5px;", data: { turbo_confirm: "Revoke approval?" } %>
-      <% else %>
-        <%= button_to "Approve", approve_attachment_path(attachment), method: :patch, class: "btn btn-success btn-sm", style: "padding:2px 5px;" %>
-      <% end %>
-    <% end %>
-    <% if logged_in? && (current_user == attachment.user || moderator_or_admin?) %>
-      <%= button_to "Delete", attachment_path(attachment), method: :delete, class: "btn btn-danger btn-sm",
-        style: "padding:2px 5px;",
-        data: { turbo_confirm: "Delete this attachment?" } %>
-    <% end %>
-  </div>
+  <%# ── Image ── %>
+  <% elsif is_image %>
+    <div style="padding:8px 10px;">
+      <%= image_tag rails_blob_url(attachment.file),
+            style: "max-width:100%; max-height:360px; border-radius:2px; border:1px solid var(--border); display:block;",
+            loading: "lazy" %>
+      <div style="margin-top:6px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+        <div style="display:flex; align-items:center; gap:8px; font-size:10px; color:var(--text-muted);">
+          <span style="color:var(--text-dim);"><%= attachment.filename %></span>
+          <span>(<%= attachment.human_size %>)</span>
+          <% if approved %>
+            <span style="color:#3d9faf; font-weight:bold;">Verified</span>
+          <% else %>
+            <span style="color:#e0a030; font-weight:bold;">Unverified</span>
+          <% end %>
+          <%= render "attachments/vt_badge", attachment: attachment %>
+        </div>
+        <div style="display:flex; gap:4px;">
+          <%= render "attachments/mod_actions", attachment: attachment, approved: approved, can_manage: can_manage, can_mod: can_mod %>
+        </div>
+      </div>
+    </div>
+
+  <%# ── File ── %>
+  <% else %>
+    <div style="padding:8px 10px; display:flex; align-items:center; gap:10px;">
+      <%= render "attachments/file_icon", attachment: attachment %>
+      <div style="flex:1; min-width:0;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <a href="<%= download_attachment_path(attachment) %>" style="font-size:12px; color:var(--link); font-weight:bold;" data-turbo="false"><%= attachment.filename %></a>
+          <% if approved %>
+            <span style="font-size:9px; font-weight:bold; color:#3d9faf; letter-spacing:.04em;">VERIFIED</span>
+          <% else %>
+            <span style="font-size:9px; font-weight:bold; color:#e0a030; letter-spacing:.04em;">UNVERIFIED</span>
+          <% end %>
+          <%= render "attachments/vt_badge", attachment: attachment %>
+        </div>
+        <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">
+          v<%= attachment.version %> &mdash; <%= attachment.human_size %> &mdash; <%= attachment.download_count %> downloads
+          <% if attachment.root_attachment.versions.any? %>
+            &mdash; <a href="<%= new_version_attachment_path(attachment.root_attachment) %>" style="color:var(--text-muted);"><%= attachment.root_attachment.versions.count + 1 %> versions</a>
+          <% end %>
+        </div>
+      </div>
+      <div style="display:flex; gap:4px; flex-shrink:0; align-items:center;">
+        <a href="<%= attachment_path(attachment) %>" class="btn btn-sm">Details</a>
+        <a href="<%= download_attachment_path(attachment) %>" class="btn btn-sm" data-turbo="false" style="display:flex; align-items:center; gap:4px;">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <% if logged_in? && (current_user == attachment.root_attachment.user || moderator_or_admin?) %>
+          <a href="<%= new_version_attachment_path(attachment.root_attachment) %>" class="btn btn-sm" title="Upload new version" style="display:flex; align-items:center; gap:4px;">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+            Update
+          </a>
+        <% end %>
+        <%= render "attachments/mod_actions", attachment: attachment, approved: approved, can_manage: can_manage, can_mod: can_mod %>
+      </div>
+    </div>
+  <% end %>
 </div>
