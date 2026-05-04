@@ -52,25 +52,33 @@ function siteConfirm(message, options = {}) {
 window.siteConfirm = siteConfirm
 window.siteAlert = (message) => siteConfirm(message, { alert: true, danger: false, confirmText: "OK" })
 
-document.addEventListener("turbo:load", () => {
+// Run once at startup — registers document-level delegated listeners
+let _appInitDone = false
+function appInit() {
+  if (_appInitDone) return
+  _appInitDone = true
   if (window.Turbo) {
     window.Turbo.config.forms.confirm = (message) => siteConfirm(message)
     window.Turbo.config.drive.prefetch = false
   }
   initMentionAutocomplete()
+  initBulkPostsDelegate()
+  initQuotePostDelegate()
+}
+
+// Run on every turbo:load — re-scans DOM for new elements
+document.addEventListener("turbo:load", () => {
+  appInit()
   initFileUpload()
   initCategoryToggle()
-  initBulkPosts()
-  initQuotePost()
   initAdminUserSearch()
   initAdminThreadBulk()
 })
 
 /* ── @mention autocomplete ── */
 function initMentionAutocomplete() {
-  // Remove any leftover dropdown from a previous page
-  const old = document.getElementById("mention-dropdown")
-  if (old) old.remove()
+  if (window._mentionInitDone) return
+  window._mentionInitDone = true
 
   const dropdown = document.createElement("ul")
   dropdown.id = "mention-dropdown"
@@ -366,35 +374,33 @@ function initCategoryToggle() {
   })
 }
 
-/* ── Bulk post checkboxes ── */
-function initBulkPosts() {
-  const bar   = document.getElementById("bulk-delete-bar")
-  const count = document.getElementById("bulk-count")
-  if (!bar || !count) return
+/* ── Bulk post checkboxes (delegated, registered once) ── */
+function initBulkPostsDelegate() {
   document.addEventListener("change", function(e) {
     if (!e.target.classList.contains("bulk-check")) return
+    const bar   = document.getElementById("bulk-delete-bar")
+    const count = document.getElementById("bulk-count")
+    if (!bar || !count) return
     const checked = document.querySelectorAll(".bulk-check:checked").length
     count.textContent = checked + " post" + (checked === 1 ? "" : "s") + " selected"
     bar.style.display = checked > 0 ? "flex" : "none"
   })
 }
 
-/* ── Quote post ── */
-function initQuotePost() {
-  document.querySelectorAll("[data-quote-post-id]").forEach(link => {
-    if (link._quoteInit) return
-    link._quoteInit = true
-    link.addEventListener("click", (e) => {
-      e.preventDefault()
-      const postId = link.dataset.quotePostId
-      const field   = document.getElementById("quote_post_id_field")
-      const preview = document.getElementById("quote-preview")
-      const form    = document.getElementById("reply-form")
-      if (!field) return
-      field.value = postId
-      if (preview) { preview.style.display = "block"; preview.textContent = "Quoting post #" + postId }
-      if (form)    form.scrollIntoView({ behavior: "smooth" })
-    })
+/* ── Quote post (delegated, registered once) ── */
+function initQuotePostDelegate() {
+  document.addEventListener("click", function(e) {
+    const link = e.target.closest("[data-quote-post-id]")
+    if (!link) return
+    e.preventDefault()
+    const postId  = link.dataset.quotePostId
+    const field   = document.getElementById("quote_post_id_field")
+    const preview = document.getElementById("quote-preview")
+    const form    = document.getElementById("reply-form")
+    if (!field) return
+    field.value = postId
+    if (preview) { preview.style.display = "block"; preview.textContent = "Quoting post #" + postId }
+    if (form)    form.scrollIntoView({ behavior: "smooth" })
   })
 }
 
