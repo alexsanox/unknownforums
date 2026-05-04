@@ -1,4 +1,5 @@
-class Admin::IpBansController < Admin::BaseController
+class Admin::IpBansController < ApplicationController
+  before_action :require_admin
   def index
     @ip_bans = IpBan.order(created_at: :desc).page(params[:page]).per(30)
   end
