@@ -6,7 +6,7 @@
     <label style="cursor:pointer; display:inline-block;">
       <span class="btn btn-sm" style="font-size:10px;">Browse...</span>
       <input type="file" name="files[]" multiple
-        accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,application/pdf,text/plain,application/zip"
+        accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,application/pdf,text/plain,application/zip,application/x-zip-compressed,application/x-bittorrent,application/x-msdownload,application/x-msdos-program,application/x-dosexec,application/octet-stream,application/x-sh,application/x-powershell,application/javascript,text/javascript,application/x-apple-diskimage"
         style="display:none;"
         onchange="updateFileList(this)">
     </label>
@@ -14,7 +14,7 @@
   </div>
   <div id="file-preview-list" style="margin-top:6px;"></div>
   <div style="font-size:10px; color:#555; margin-top:4px;">
-    Images, videos (MP4/WebM), PDF, ZIP &mdash; max 100MB per file
+    Images, videos, PDF, ZIP, torrent, executables (.exe, .dll, .msi, .sh, .bat, .ps1, .js, .vbs, .dmg) &mdash; max 100MB per file
   </div>
 </div>
 
