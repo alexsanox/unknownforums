@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_04_210001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_05_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -169,6 +169,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_04_210001) do
     t.index ["subforum_id", "pinned", "created_at"], name: "index_forum_threads_on_subforum_id_and_pinned_and_created_at"
     t.index ["subforum_id"], name: "index_forum_threads_on_subforum_id"
     t.index ["user_id"], name: "index_forum_threads_on_user_id"
+  end
+
+  create_table "ip_bans", force: :cascade do |t|
+    t.bigint "banned_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "expires_at"
+    t.string "ip_address", null: false
+    t.string "reason"
+    t.datetime "updated_at", null: false
+    t.index ["banned_by_id"], name: "index_ip_bans_on_banned_by_id"
+    t.index ["ip_address"], name: "index_ip_bans_on_ip_address", unique: true
   end
 
   create_table "notifications", force: :cascade do |t|

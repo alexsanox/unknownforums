@@ -99,6 +99,7 @@ Rails.application.routes.draw do
     resources :site_pages,    only: %i[index edit update]
     resources :attack_events, only: %i[index]
     resources :audit_logs,    only: %i[index]
+    resources :ip_bans,       only: %i[index create destroy]
     get   "site_settings",        to: "site_settings#index",  as: :site_settings
     patch "site_settings",        to: "site_settings#update"
     patch "bulk_threads", to: "bulk_threads#update", as: :bulk_threads

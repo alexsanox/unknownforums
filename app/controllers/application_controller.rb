@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
   before_action :track_current_user_activity
   before_action :check_maintenance_mode
   before_action :check_banned
+  before_action :check_ip_banned
   before_action :set_admin_summary, if: :show_admin_summary?
 
   helper_method :current_user, :logged_in?, :admin?, :moderator_or_admin?, :can_moderate_thread?
@@ -56,6 +57,13 @@ class ApplicationController < ActionController::Base
       reset_session
       redirect_to login_path, alert: "Your account has been banned."
     end
+  end
+
+  def check_ip_banned
+    return if admin?
+    return unless IpBan.banned?(request.remote_ip)
+    reset_session
+    render plain: "Your IP address has been banned.", status: :forbidden
   end
 
   def show_admin_summary?

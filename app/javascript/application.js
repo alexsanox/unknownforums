@@ -226,31 +226,66 @@ function initFileUpload() {
   input.addEventListener("change", function() { renderFilePreview(this.files) })
 }
 
+const MAX_FILE_BYTES = 100 * 1024 * 1024
+
 function renderFilePreview(files) {
   const label   = document.getElementById("file-list-label")
   const preview = document.getElementById("file-preview-list")
+  const errBox  = document.getElementById("file-size-error")
   if (!label || !preview) return
+
   preview.innerHTML = ""
-  if (!files.length) { label.textContent = ""; return }
-  label.textContent = files.length + " file" + (files.length !== 1 ? "s" : "") + " selected"
+  if (errBox) { errBox.style.display = "none"; errBox.innerHTML = "" }
+
+  if (!files.length) { label.textContent = "No files selected"; return }
+
+  const oversized = Array.from(files).filter(f => f.size > MAX_FILE_BYTES)
+  const input     = document.getElementById("file-upload-input")
+  const form      = input ? input.closest("form") : null
+
+  if (oversized.length) {
+    if (errBox) {
+      errBox.style.display = "block"
+      errBox.innerHTML = "<strong>File size exceeded (100 MB limit):</strong><ul style='margin:3px 0 0 14px;padding:0;'>"
+        + oversized.map(f => `<li>${f.name} — ${fmtSize(f.size)}</li>`).join("")
+        + "</ul>"
+    }
+    if (form) form.querySelectorAll("[type=submit]").forEach(btn => { btn.disabled = true; btn._fileSizeBlock = true })
+  } else {
+    if (form) form.querySelectorAll("[type=submit]").forEach(btn => {
+      if (btn._fileSizeBlock) { btn.disabled = false; delete btn._fileSizeBlock }
+    })
+  }
+
+  const ok = Array.from(files).filter(f => f.size <= MAX_FILE_BYTES)
+  label.textContent = ok.length + " file" + (ok.length !== 1 ? "s" : "") + " ready"
+    + (oversized.length ? ` · ${oversized.length} too large` : "")
+
   Array.from(files).forEach(file => {
-    const isImg = file.type.startsWith("image/")
-    const isVid = file.type.startsWith("video/")
-    const tag   = isImg ? "IMG" : isVid ? "VID" : "FILE"
-    const size  = file.size >= 1048576 ? (file.size/1048576).toFixed(1)+" MB" : (file.size/1024).toFixed(0)+" KB"
-    const row   = document.createElement("div")
-    row.style.cssText = "font-size:10px;color:#888;padding:2px 0;display:flex;align-items:center;gap:6px;"
-    row.innerHTML = `<span style="border:1px solid #555;padding:1px 4px;font-size:9px;color:#aaa;">${tag}</span>`
-      + `<span style="color:#a8c8f0;">${file.name}</span>`
-      + `<span style="color:#555;">(${size})</span>`
-    if (isImg) {
+    const tooBig = file.size > MAX_FILE_BYTES
+    const isImg  = file.type.startsWith("image/")
+    const isVid  = file.type.startsWith("video/")
+    const tag    = isImg ? "IMG" : isVid ? "VID" : "FILE"
+    const row    = document.createElement("div")
+    row.style.cssText = `font-size:10px;padding:3px 5px;margin-bottom:2px;display:flex;align-items:center;gap:6px;`
+      + `background:${tooBig ? "rgba(192,80,80,0.08)" : "rgba(255,255,255,0.02)"};`
+      + `border:1px solid ${tooBig ? "#803030" : "#2e2e2e"};border-radius:2px;`
+    row.innerHTML = `<span style="border:1px solid #555;padding:1px 4px;font-size:9px;color:${tooBig?"#e07070":"#aaa"};">${tag}</span>`
+      + `<span style="flex:1;color:${tooBig?"#e07070":"#a8c8f0"};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${file.name}">${file.name}</span>`
+      + `<span style="color:${tooBig?"#e07070":"#555"};flex-shrink:0;">${fmtSize(file.size)}</span>`
+      + (tooBig ? `<span style="color:#e07070;font-weight:bold;flex-shrink:0;">✕ Too large</span>` : "")
+    if (isImg && !tooBig) {
       const img = document.createElement("img")
-      img.style.cssText = "height:36px;width:auto;border:1px solid #333;margin-left:2px;"
+      img.style.cssText = "height:34px;width:auto;border:1px solid #333;flex-shrink:0;"
       img.src = URL.createObjectURL(file)
       row.appendChild(img)
     }
     preview.appendChild(row)
   })
+}
+
+function fmtSize(b) {
+  return b >= 1048576 ? (b/1048576).toFixed(1)+" MB" : (b/1024).toFixed(0)+" KB"
 }
 
 /* ── Image lightbox ── */

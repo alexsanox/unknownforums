@@ -9,7 +9,7 @@
 <div class="panel" style="margin-bottom:12px;">
   <div class="panel-header">
     Watched Threads
-    <span style="font-weight:normal; color:#888; font-size:10px; margin-left:6px;"><%= @watched_threads.size %> watched</span>
+    <span style="font-weight:normal; color:#888; font-size:10px; margin-left:6px;"><%= @watched_threads.total_count %> watched</span>
   </div>
   <% if @watched_threads.any? %>
     <table style="width:100%;">
@@ -68,13 +68,20 @@
       You're not watching any threads. Click <strong>Watch</strong> on any thread to get notified of new replies.
     </div>
   <% end %>
+  <% if @watched_threads.total_pages > 1 %>
+    <div style="padding:6px 10px; border-top:1px solid #333; display:flex; gap:6px; justify-content:flex-end;">
+      <%= link_to_prev_page @watched_threads, "← Prev", class: "btn btn-sm", params: { watched_page: @watched_threads.current_page - 1 } %>
+      <span style="font-size:10px; color:#666; align-self:center;">Page <%= @watched_threads.current_page %> of <%= @watched_threads.total_pages %></span>
+      <%= link_to_next_page @watched_threads, "Next →", class: "btn btn-sm", params: { watched_page: @watched_threads.current_page + 1 } %>
+    </div>
+  <% end %>
 </div>
 
 <!-- Mention Notifications -->
 <div class="panel">
   <div class="panel-header">
     Mentions
-    <span style="font-weight:normal; color:#888; font-size:10px; margin-left:6px;"><%= @mentions.size %> recent</span>
+    <span style="font-weight:normal; color:#888; font-size:10px; margin-left:6px;"><%= @mentions.total_count %> total</span>
   </div>
   <% if @mentions.any? %>
     <% @mentions.each do |n| %>
@@ -95,6 +102,13 @@
       </div>
     <% end %>
   <% else %>
-    <div style="padding:20px; text-align:center; color:#666; font-size:12px;">No mentions yet.</div>
+    <div style="padding:20px; text-align:center; color:#666; font-size:12px;">No notifications yet.</div>
+  <% end %>
+  <% if @mentions.total_pages > 1 %>
+    <div style="padding:6px 10px; border-top:1px solid #333; display:flex; gap:6px; justify-content:flex-end;">
+      <%= link_to_prev_page @mentions, "← Prev", class: "btn btn-sm" %>
+      <span style="font-size:10px; color:#666; align-self:center;">Page <%= @mentions.current_page %> of <%= @mentions.total_pages %></span>
+      <%= link_to_next_page @mentions, "Next →", class: "btn btn-sm" %>
+    </div>
   <% end %>
 </div>

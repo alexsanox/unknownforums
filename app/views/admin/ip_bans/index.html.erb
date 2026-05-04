@@ -1,0 +1,52 @@
+<% content_for :title, "IP Bans" %>
+
+<div class="panel">
+  <div class="panel-header">IP Bans</div>
+  <div class="panel-body">
+    <%= form_with url: admin_ip_bans_path, method: :post, style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;" do |f| %>
+      <%= f.text_field :ip_address, name: "ip_ban[ip_address]", placeholder: "IP address", style: "width:160px;" %>
+      <%= f.text_field :reason,     name: "ip_ban[reason]",     placeholder: "Reason (optional)", style: "flex:1; min-width:160px;" %>
+      <%= f.datetime_local_field :expires_at, name: "ip_ban[expires_at]", style: "width:180px;", title: "Leave blank for permanent" %>
+      <%= f.submit "Ban IP", class: "btn btn-danger btn-sm" %>
+    <% end %>
+
+    <% if @ip_bans.any? %>
+      <table>
+        <tr style="background:#222; font-size:10px; color:#666; text-transform:uppercase;">
+          <th style="text-align:left;">IP Address</th>
+          <th style="text-align:left;">Reason</th>
+          <th style="text-align:left;">Banned By</th>
+          <th style="text-align:left;">Expires</th>
+          <th style="text-align:left;">Created</th>
+          <th></th>
+        </tr>
+        <% @ip_bans.each_with_index do |ban, i| %>
+          <tr style="background:<%= i.even? ? '#1e1e1e' : '#1a1a1a' %>; border-top:1px solid #2a2a2a;">
+            <td style="font-size:11px; font-family:monospace; color:<%= ban.expired? ? '#555' : '#f08080' %>;"><%= ban.ip_address %></td>
+            <td style="font-size:11px; color:#888;"><%= ban.reason.presence || "—" %></td>
+            <td style="font-size:11px; color:#666;"><%= ban.banned_by&.username || "—" %></td>
+            <td style="font-size:11px; color:<%= ban.expired? ? '#555' : '#888' %>;">
+              <%= ban.expires_at ? ban.expires_at.strftime("%m/%d/%Y %H:%M") : "Permanent" %>
+              <% if ban.expired? %><span style="color:#555;"> (expired)</span><% end %>
+            </td>
+            <td style="font-size:11px; color:#666;"><%= ban.created_at.strftime("%m/%d/%Y") %></td>
+            <td>
+              <%= button_to "Remove", admin_ip_ban_path(ban), method: :delete,
+                    class: "btn btn-sm", style: "padding:2px 6px;",
+                    data: { turbo_confirm: "Remove IP ban for #{ban.ip_address}?" } %>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+      <div class="toolbar" style="margin-top:8px; border-top:none;">
+        <span>Page <%= @ip_bans.current_page %> of <%= @ip_bans.total_pages %></span>
+        <div class="action-group">
+          <%= link_to_prev_page @ip_bans, "← Prev", class: "btn btn-sm" %>
+          <%= link_to_next_page @ip_bans, "Next →", class: "btn btn-sm" %>
+        </div>
+      </div>
+    <% else %>
+      <div style="padding:20px; text-align:center; color:#666; font-size:12px;">No IP bans yet.</div>
+    <% end %>
+  </div>
+</div>
