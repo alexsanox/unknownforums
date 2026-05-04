@@ -17,10 +17,10 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="<%= content_for(:og_title).presence || content_for(:title).presence || forum_name %>">
     <meta name="twitter:description" content="<%= content_for(:og_description).presence || content_for(:meta_description).presence || forum_description %>">
-    <link rel="icon" href="/favis/favicon.ico" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favis/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favis/favicon-16x16.png">
-    <link rel="apple-touch-icon" href="/favis/apple-touch-icon.png">
+    <link rel="icon" href="/favis/favicon.ico?v=2" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favis/favicon-32x32.png?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favis/favicon-16x16.png?v=2">
+    <link rel="apple-touch-icon" href="/favis/apple-touch-icon.png?v=2">
     <link rel="manifest" href="/favis/site.webmanifest">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -269,9 +269,9 @@
       .header-inner-flush { max-width: 1100px; margin: 0 auto; padding: 0; }
       .user-toolbar { background: #141414; border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border); font-size: 11px; }
       .user-toolbar-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 5px 0; }
-      .site-banner { width: 100%; overflow: hidden; background: #080808; border-bottom: 1px solid #000002; line-height: 0; }
-      .site-banner a { display: block; width: 100%; }
-      .site-banner img { display: block; width: 100%; height: auto; object-fit: cover; }
+      .site-banner { width: 100%; max-height: 120px; overflow: hidden; background: #080808; border-bottom: 1px solid #000002; line-height: 0; }
+      .site-banner a { display: block; width: 100%; height: 100%; }
+      .site-banner img { display: block; width: 100%; max-height: 120px; object-fit: cover; object-position: center top; }
       .nav-tabs { display: flex; gap: 1px; border-bottom: 1px solid var(--border); }
       .nav-tabs a { background: #141414; border: 1px solid transparent; border-bottom: none; color: var(--text-dim); padding: 7px 14px; font-size: 11px; letter-spacing: 0.02em; transition: background 0.12s, color 0.12s; }
       .nav-tabs a:hover { background: var(--bg3); color: var(--text-bright); text-decoration: none; }
