@@ -67,9 +67,9 @@
           <a href="<%= edit_forum_thread_post_path(thread, post) %>">Edit</a>
         <% end %>
         <% if can_moderate %>
-          <%= button_to "Del", forum_thread_post_path(thread, post), method: :delete,
+          <%= link_to "Del", forum_thread_post_path(thread, post),
             class: "btn btn-danger btn-sm",
-            data: { turbo_confirm: "Delete this post?" } %>
+            data: { turbo_method: :delete, turbo_confirm: "Delete this post?" } %>
         <% end %>
         <% if viewer && viewer != post.user %>
           <a href="<%= new_report_path(reportable_type: 'Post', reportable_id: post.id) %>">Report</a>

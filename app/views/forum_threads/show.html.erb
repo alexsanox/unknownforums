@@ -96,6 +96,9 @@
 <% _can_mod = can_moderate_thread?(@thread) %>
 <%= form_with url: bulk_delete_posts_forum_thread_path(@thread), method: :delete, id: "bulk-delete-form" do %>
 <div id="posts" style="border:1px solid #444; border-top:none;">
+  <% if @posts.empty? %>
+    <div style="padding:24px; text-align:center; color:#666; font-size:12px;">No posts to display.</div>
+  <% end %>
   <% @posts.each_with_index do |post, i| %>
     <div style="position:relative;">
       <% if _can_mod %>
@@ -115,9 +118,11 @@
   <% end %>
 </div>
 <% if _can_mod %>
-  <div id="bulk-delete-bar" style="display:none; background:#2a1a1a; border:1px solid #6a2a2a; border-top:none; padding:6px 10px; justify-content:space-between; align-items:center;">
-    <span id="bulk-count" style="font-size:11px; color:#cfcfcf;">0 posts selected</span>
-    <button type="submit" class="btn btn-danger btn-sm" data-turbo-confirm="Delete selected posts?">Delete Selected</button>
+  <div id="bulk-delete-bar" style="display:none; background:#2a1a1a; border:1px solid #6a2a2a; border-top:none; padding:6px 10px; align-items:center; gap:8px;">
+    <span id="bulk-count" style="font-size:11px; color:#cfcfcf; flex:1;">0 posts selected</span>
+    <button type="button" id="bulk-select-all-posts" class="btn btn-sm" style="font-size:10px;">Select All</button>
+    <button type="button" id="bulk-deselect-all-posts" class="btn btn-sm" style="font-size:10px;">None</button>
+    <button type="submit" id="bulk-delete-submit" class="btn btn-danger btn-sm">Delete Selected</button>
   </div>
 <% end %>
 <% end %>

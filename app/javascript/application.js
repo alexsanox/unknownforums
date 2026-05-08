@@ -113,19 +113,60 @@ function initCategoryToggle() {
   })
 }
 
-/* ── Bulk post delete (delegated, once) ── */
+/* ── Bulk post delete ── */
 let _bulkPostsInit = false
 function initBulkPosts() {
   if (_bulkPostsInit) return
   _bulkPostsInit = true
-  document.addEventListener("change", (e) => {
-    if (!e.target.classList.contains("bulk-check")) return
-    const bar   = document.getElementById("bulk-delete-bar")
-    const count = document.getElementById("bulk-count")
+
+  function updateBulkBar() {
+    const bar     = document.getElementById("bulk-delete-bar")
+    const count   = document.getElementById("bulk-count")
     if (!bar || !count) return
     const checked = document.querySelectorAll(".bulk-check:checked").length
     count.textContent = checked + " post" + (checked === 1 ? "" : "s") + " selected"
     bar.style.display = checked > 0 ? "flex" : "none"
+  }
+
+  document.addEventListener("change", (e) => {
+    if (e.target.classList.contains("bulk-check")) updateBulkBar()
+  })
+
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "bulk-select-all-posts") {
+      document.querySelectorAll(".bulk-check").forEach(cb => cb.checked = true)
+      updateBulkBar()
+    }
+    if (e.target.id === "bulk-deselect-all-posts") {
+      document.querySelectorAll(".bulk-check").forEach(cb => cb.checked = false)
+      updateBulkBar()
+    }
+  })
+
+  document.addEventListener("submit", async (e) => {
+    const form = e.target
+    if (form.id !== "bulk-delete-form") return
+    const checked = document.querySelectorAll(".bulk-check:checked").length
+    if (checked === 0) {
+      e.preventDefault()
+      await window.siteAlert("No posts selected.")
+      return
+    }
+    if (!form.dataset.confirmed) {
+      e.preventDefault()
+      if (await window.siteConfirm("Delete " + checked + " post" + (checked === 1 ? "" : "s") + "? This cannot be undone.")) {
+        form.dataset.confirmed = "1"
+        form.requestSubmit()
+      }
+      return
+    }
+    delete form.dataset.confirmed
+  })
+
+  document.addEventListener("turbo:load", () => {
+    document.querySelectorAll(".bulk-check").forEach(cb => cb.checked = false)
+    const bar = document.getElementById("bulk-delete-bar")
+    if (bar) bar.style.display = "none"
   })
 }
 
