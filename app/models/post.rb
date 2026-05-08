@@ -1,6 +1,6 @@
 class Post < ApplicationRecord
   belongs_to :user
-  belongs_to :thread, class_name: "ForumThread", foreign_key: :forum_thread_id, counter_cache: :posts_count
+  belongs_to :thread, class_name: "ForumThread", foreign_key: :forum_thread_id
   belongs_to :quote_post, class_name: "Post", optional: true
   has_many :attachments, as: :attachable, dependent: :destroy
   has_many :reputations, dependent: :destroy
