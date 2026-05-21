@@ -15,7 +15,7 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 3 }.to_i + 1 %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 3 }.to_i + 2 %>
   checkout_timeout: 3
   connect_timeout: 5
   variables:
